@@ -4,7 +4,7 @@ export default function Hero() {
   return (
     <section id="inicio" className="relative w-full overflow-hidden bg-[#061B3A]">
       <Image
-        src="/images/hero/hero-vettor.png"
+        src="/Images/hero/hero-vettor.png"
         alt="Vettor Seguros - Proteção inteligente"
         width={1920}
         height={1080}
