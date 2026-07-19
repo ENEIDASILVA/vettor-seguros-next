@@ -10,13 +10,15 @@ import { useQuote } from "../context/QuoteContext";
 import { useCep } from "../hooks/useCep";
 
 export default function StepProperty() {
-  const { form, updateField, updateFields } = useQuote();
+  const { form, updateField, updateFields } =
+    useQuote();
+
   const { loading, findCep } = useCep();
 
   const lastSearchedCep = useRef("");
 
   function handleCepChange(value: string) {
-    updateField("vehicleCep", value);
+    updateField("propertyCep", value);
 
     const numbers = value.replace(/\D/g, "");
 
@@ -51,6 +53,37 @@ export default function StepProperty() {
     });
   }
 
+  function handleAreaChange(value: string) {
+    const numbers = value
+      .replace(/\D/g, "")
+      .slice(0, 6);
+
+    updateField("propertyArea", numbers);
+  }
+
+  function handleValueChange(value: string) {
+    const numbers = value.replace(/\D/g, "");
+
+    if (numbers === "") {
+      updateField("propertyValue", "");
+      return;
+    }
+
+    const formattedValue = new Intl.NumberFormat(
+      "pt-BR",
+      {
+        style: "currency",
+        currency: "BRL",
+        maximumFractionDigits: 0,
+      }
+    ).format(Number(numbers));
+
+    updateField(
+      "propertyValue",
+      formattedValue
+    );
+  }
+
   return (
     <StepLayout
       title="Dados do imóvel"
@@ -58,7 +91,7 @@ export default function StepProperty() {
     >
       <Input
         label="CEP do imóvel"
-        value={form.vehicleCep}
+        value={form.propertyCep}
         placeholder="00000-000"
         mask="cep"
         required
@@ -77,8 +110,8 @@ export default function StepProperty() {
         </h3>
 
         <p className="mb-5 text-sm text-gray-600">
-          Confira os dados encontrados e complete ou altere as informações
-          quando necessário.
+          Confira os dados encontrados e complete
+          ou altere as informações quando necessário.
         </p>
 
         <Input
@@ -86,7 +119,9 @@ export default function StepProperty() {
           value={form.address}
           placeholder="Digite a rua ou o logradouro"
           required
-          onChange={(value) => updateField("address", value)}
+          onChange={(value) =>
+            updateField("address", value)
+          }
         />
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -95,14 +130,24 @@ export default function StepProperty() {
             value={form.addressNumber}
             placeholder="Ex.: 125"
             required
-            onChange={(value) => updateField("addressNumber", value)}
+            onChange={(value) =>
+              updateField(
+                "addressNumber",
+                value
+              )
+            }
           />
 
           <Input
             label="Complemento"
             value={form.addressComplement}
             placeholder="Apto., bloco, casa, lote..."
-            onChange={(value) => updateField("addressComplement", value)}
+            onChange={(value) =>
+              updateField(
+                "addressComplement",
+                value
+              )
+            }
           />
         </div>
 
@@ -111,7 +156,9 @@ export default function StepProperty() {
           value={form.district}
           placeholder="Digite o bairro"
           required
-          onChange={(value) => updateField("district", value)}
+          onChange={(value) =>
+            updateField("district", value)
+          }
         />
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -120,7 +167,9 @@ export default function StepProperty() {
             value={form.city}
             placeholder="Digite a cidade"
             required
-            onChange={(value) => updateField("city", value)}
+            onChange={(value) =>
+              updateField("city", value)
+            }
           />
 
           <Input
@@ -128,8 +177,15 @@ export default function StepProperty() {
             value={form.state}
             placeholder="Ex.: MG"
             required
+            maxLength={2}
             onChange={(value) =>
-              updateField("state", value.toUpperCase().slice(0, 2))
+              updateField(
+                "state",
+                value
+                  .replace(/[^a-zA-Z]/g, "")
+                  .toUpperCase()
+                  .slice(0, 2)
+              )
             }
           />
         </div>
@@ -137,40 +193,73 @@ export default function StepProperty() {
 
       <Select
         label="Tipo de imóvel"
-        value={form.vehicleBrand}
-        onChange={(value) => updateField("vehicleBrand", value)}
+        value={form.propertyType}
+        onChange={(value) =>
+          updateField("propertyType", value)
+        }
         options={[
-          { label: "Casa", value: "Casa" },
-          { label: "Apartamento", value: "Apartamento" },
-          { label: "Sobrado", value: "Sobrado" },
-          { label: "Chácara", value: "Chácara" },
-          { label: "Sítio", value: "Sítio" },
+          {
+            label: "Casa",
+            value: "Casa",
+          },
+          {
+            label: "Apartamento",
+            value: "Apartamento",
+          },
+          {
+            label: "Sobrado",
+            value: "Sobrado",
+          },
+          {
+            label: "Chácara",
+            value: "Chácara",
+          },
+          {
+            label: "Sítio",
+            value: "Sítio",
+          },
         ]}
       />
 
       <Select
         label="Situação do imóvel"
-        value={form.vehicleModel}
-        onChange={(value) => updateField("vehicleModel", value)}
+        value={form.propertyStatus}
+        onChange={(value) =>
+          updateField(
+            "propertyStatus",
+            value
+          )
+        }
         options={[
-          { label: "Próprio", value: "Próprio" },
-          { label: "Alugado", value: "Alugado" },
-          { label: "Financiado", value: "Financiado" },
+          {
+            label: "Próprio",
+            value: "Próprio",
+          },
+          {
+            label: "Alugado",
+            value: "Alugado",
+          },
+          {
+            label: "Financiado",
+            value: "Financiado",
+          },
         ]}
       />
 
       <Input
         label="Área construída (m²)"
-        value={form.vehicleYear}
+        value={form.propertyArea}
         placeholder="Ex.: 180"
-        onChange={(value) => updateField("vehicleYear", value)}
+        required
+        onChange={handleAreaChange}
       />
 
       <Input
         label="Valor aproximado do imóvel"
-        value={form.observations}
+        value={form.propertyValue}
         placeholder="Ex.: R$ 800.000"
-        onChange={(value) => updateField("observations", value)}
+        required
+        onChange={handleValueChange}
       />
     </StepLayout>
   );

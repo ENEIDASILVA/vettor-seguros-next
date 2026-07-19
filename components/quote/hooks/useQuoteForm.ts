@@ -21,9 +21,15 @@ const initialForm: QuoteFormData = {
   city: "",
   state: "",
 
+  vehicleBrandCode: "",
   vehicleBrand: "",
+  vehicleModelCode: "",
   vehicleModel: "",
+  vehicleYearCode: "",
   vehicleYear: "",
+  vehicleFuel: "",
+  vehicleFipeCode: "",
+  vehicleZeroKm: "",
   vehicleCep: "",
   vehicleGarage: "",
   vehicleApp: "",
@@ -44,6 +50,16 @@ const initialForm: QuoteFormData = {
   claimsCount: "",
   insuranceRefused: "",
 
+  propertyCep: "",
+  propertyType: "",
+  propertyStatus: "",
+  propertyArea: "",
+  propertyValue: "",
+  propertyUse: "",
+  propertyAlarm: "",
+  propertyMonitoring: "",
+  propertyGatedCommunity: "",
+
   lifeBirthDate: "",
   lifeMaritalStatus: "",
   lifeProfession: "",
@@ -61,7 +77,8 @@ const initialForm: QuoteFormData = {
 };
 
 export function useQuoteForm() {
-  const [form, setForm] = useState<QuoteFormData>(initialForm);
+  const [form, setForm] =
+    useState<QuoteFormData>(initialForm);
 
   function updateInsurance(value: InsuranceType) {
     setForm((previous) => ({
@@ -80,7 +97,9 @@ export function useQuoteForm() {
     }));
   }
 
-  function updateFields(fields: Partial<QuoteFormData>) {
+  function updateFields(
+    fields: Partial<QuoteFormData>
+  ) {
     setForm((previous) => ({
       ...previous,
       ...fields,
@@ -89,7 +108,8 @@ export function useQuoteForm() {
 
   function toggleCoverage(coverage: string) {
     setForm((previous) => {
-      const selected = previous.coverages.includes(coverage);
+      const selected =
+        previous.coverages.includes(coverage);
 
       return {
         ...previous,
@@ -97,12 +117,17 @@ export function useQuoteForm() {
           ? previous.coverages.filter(
               (item) => item !== coverage
             )
-          : [...previous.coverages, coverage],
+          : [
+              ...previous.coverages,
+              coverage,
+            ],
       };
     });
   }
 
-  function addBeneficiary(beneficiary: Beneficiary) {
+  function addBeneficiary(
+    beneficiary: Beneficiary
+  ) {
     setForm((previous) => ({
       ...previous,
       beneficiaries: [
@@ -118,18 +143,23 @@ export function useQuoteForm() {
   ) {
     setForm((previous) => ({
       ...previous,
-      beneficiaries: previous.beneficiaries.map((item) =>
-        item.id === id ? beneficiary : item
-      ),
+      beneficiaries:
+        previous.beneficiaries.map(
+          (item) =>
+            item.id === id
+              ? beneficiary
+              : item
+        ),
     }));
   }
 
   function removeBeneficiary(id: string) {
     setForm((previous) => ({
       ...previous,
-      beneficiaries: previous.beneficiaries.filter(
-        (item) => item.id !== id
-      ),
+      beneficiaries:
+        previous.beneficiaries.filter(
+          (item) => item.id !== id
+        ),
     }));
   }
 

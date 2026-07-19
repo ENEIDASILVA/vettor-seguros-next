@@ -31,10 +31,20 @@ export interface QuoteFormData {
   city: string;
   state: string;
 
-  // Veículo / imóvel
+  // Veículo
+  vehicleBrandCode: string;
   vehicleBrand: string;
+
+  vehicleModelCode: string;
   vehicleModel: string;
+
+  vehicleYearCode: string;
   vehicleYear: string;
+
+  vehicleFuel: string;
+  vehicleFipeCode: string;
+  vehicleZeroKm: string;
+
   vehicleCep: string;
   vehicleGarage: string;
   vehicleApp: string;
@@ -56,6 +66,17 @@ export interface QuoteFormData {
   hadClaims: string;
   claimsCount: string;
   insuranceRefused: string;
+
+  // Seguro Residencial
+  propertyCep: string;
+  propertyType: string;
+  propertyStatus: string;
+  propertyArea: string;
+  propertyValue: string;
+  propertyUse: string;
+  propertyAlarm: string;
+  propertyMonitoring: string;
+  propertyGatedCommunity: string;
 
   // Seguro de Vida
   lifeBirthDate: string;

@@ -41,10 +41,12 @@ export default function StepReviewLife({
             value={form.phone}
           />
 
-          <SummaryField
-            label="E-mail"
-            value={form.email}
-          />
+          {form.email.trim() !== "" && (
+            <SummaryField
+              label="E-mail"
+              value={form.email}
+            />
+          )}
 
           <SummaryField
             label="CPF"
@@ -72,7 +74,7 @@ export default function StepReviewLife({
           />
 
           <SummaryField
-            label="Renda mensal"
+            label="Renda mensal aproximada"
             value={form.lifeMonthlyIncome}
           />
         </SummaryCard>
@@ -106,7 +108,7 @@ export default function StepReviewLife({
           title="Capital e coberturas"
           onEdit={() => onEdit(5)}
           complete={
-            form.lifeInsuredCapital !== "" &&
+            form.lifeInsuredCapital.trim() !== "" &&
             form.coverages.length > 0
           }
         >
@@ -160,7 +162,9 @@ export default function StepReviewLife({
 
                   <SummaryField
                     label="Percentual"
-                    value={beneficiary.percentage + "%"}
+                    value={
+                      beneficiary.percentage + "%"
+                    }
                   />
                 </div>
               ))}

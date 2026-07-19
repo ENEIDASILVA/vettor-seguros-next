@@ -7,6 +7,29 @@ import { useQuote } from "../context/QuoteContext";
 export default function StepLifeProfile() {
   const { form, updateField } = useQuote();
 
+  function handleIncomeChange(value: string) {
+    const numbers = value.replace(/\D/g, "");
+
+    if (numbers === "") {
+      updateField("lifeMonthlyIncome", "");
+      return;
+    }
+
+    const formattedValue = new Intl.NumberFormat(
+      "pt-BR",
+      {
+        style: "currency",
+        currency: "BRL",
+        maximumFractionDigits: 0,
+      }
+    ).format(Number(numbers));
+
+    updateField(
+      "lifeMonthlyIncome",
+      formattedValue
+    );
+  }
+
   return (
     <StepLayout
       title="Perfil do segurado"
@@ -18,6 +41,8 @@ export default function StepLifeProfile() {
         placeholder="dd/mm/aaaa"
         mask="date"
         required
+        minimumAge={18}
+        maximumAge={100}
         onChange={(value) =>
           updateField("lifeBirthDate", value)
         }
@@ -27,7 +52,10 @@ export default function StepLifeProfile() {
         label="Estado civil"
         value={form.lifeMaritalStatus}
         onChange={(value) =>
-          updateField("lifeMaritalStatus", value)
+          updateField(
+            "lifeMaritalStatus",
+            value
+          )
         }
         options={[
           {
@@ -66,11 +94,9 @@ export default function StepLifeProfile() {
       <Input
         label="Renda mensal aproximada"
         value={form.lifeMonthlyIncome}
-        placeholder="Ex.: R$ 5.000,00"
+        placeholder="Ex.: R$ 5.000"
         required
-        onChange={(value) =>
-          updateField("lifeMonthlyIncome", value)
-        }
+        onChange={handleIncomeChange}
       />
     </StepLayout>
   );

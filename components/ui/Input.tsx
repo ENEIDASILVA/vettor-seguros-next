@@ -7,12 +7,21 @@ import {
   phoneMask,
 } from "../quote/utils/masks";
 
-type MaskType = "cpf" | "cep" | "phone" | "date";
+import {
+  getDateValidationError,
+  isValidCPF,
+} from "../quote/utils/validators";
+
+type MaskType =
+  | "cpf"
+  | "cep"
+  | "phone"
+  | "date";
 
 interface InputProps {
   label: string;
   placeholder?: string;
-  value: string;
+  value?: string;
   type?: string;
   required?: boolean;
   disabled?: boolean;
@@ -20,6 +29,10 @@ interface InputProps {
   helperText?: string;
   maxLength?: number;
   mask?: MaskType;
+  minimumAge?: number;
+  maximumAge?: number;
+  validateDate?: boolean;
+  validateCpf?: boolean;
   onChange: (value: string) => void;
 }
 
@@ -34,12 +47,56 @@ export default function Input({
   helperText = "",
   maxLength,
   mask,
+  minimumAge = 18,
+  maximumAge = 100,
+  validateDate = true,
+  validateCpf = true,
   onChange,
 }: InputProps) {
-  const hasError = error.trim() !== "";
+  const automaticDateError =
+    mask === "date" && validateDate
+      ? getDateValidationError(
+          value,
+          minimumAge,
+          maximumAge
+        )
+      : "";
 
-  const errorId = label + "-error";
-  const helperId = label + "-helper";
+  const safeValue = value ?? "";
+
+  const cpfNumbers = safeValue.replace(/\D/g, "");
+
+  const automaticCpfError =
+    mask === "cpf" &&
+    validateCpf &&
+    cpfNumbers.length === 11 &&
+    !isValidCPF(value)
+      ? "CPF inválido. Verifique os números informados."
+      : "";
+
+  const automaticError =
+    automaticDateError.trim() !== ""
+      ? automaticDateError
+      : automaticCpfError;
+
+  const displayedError =
+    error.trim() !== ""
+      ? error
+      : automaticError;
+
+  const hasError =
+    displayedError.trim() !== "";
+
+  const normalizedId = label
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  const inputId = normalizedId + "-input";
+  const errorId = normalizedId + "-error";
+  const helperId = normalizedId + "-helper";
 
   function applyMask(inputValue: string) {
     if (mask === "cpf") {
@@ -63,32 +120,43 @@ export default function Input({
 
   return (
     <div className="mb-6">
-      <label className="mb-2 block font-semibold text-blue-900">
+      <label
+        htmlFor={inputId}
+        className="mb-2 block font-semibold text-blue-900"
+      >
         {label}
 
         {required && (
-          <span className="ml-1 text-red-600">
+          <span
+            className="ml-1 text-red-600"
+            aria-hidden="true"
+          >
             *
           </span>
         )}
       </label>
 
       <input
+        id={inputId}
         type={type}
-        value={value}
+        value={safeValue}
         placeholder={placeholder}
         disabled={disabled}
         maxLength={maxLength}
+        required={required}
+        aria-required={required}
         aria-invalid={hasError}
         aria-describedby={
           hasError
             ? errorId
             : helperText
-            ? helperId
-            : undefined
+              ? helperId
+              : undefined
         }
         onChange={(event) =>
-          onChange(applyMask(event.target.value))
+          onChange(
+            applyMask(event.target.value)
+          )
         }
         className={
           hasError
@@ -109,9 +177,10 @@ export default function Input({
       {hasError && (
         <p
           id={errorId}
+          role="alert"
           className="mt-2 text-sm font-medium text-red-600"
         >
-          {error}
+          {displayedError}
         </p>
       )}
     </div>

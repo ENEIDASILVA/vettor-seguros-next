@@ -2,7 +2,7 @@ import { QuoteFormData } from "../types";
 
 function value(text: string) {
   return text && text.trim() !== ""
-    ? text
+    ? text.trim()
     : "Não informado";
 }
 
@@ -12,7 +12,7 @@ function formatCoverages(form: QuoteFormData) {
   }
 
   return form.coverages
-    .map((item) => "• " + item)
+    .map((coverage) => "• " + coverage)
     .join("\n");
 }
 
@@ -33,14 +33,9 @@ function formatAddress(form: QuoteFormData) {
     .filter((item) => item.trim() !== "")
     .join(" - ");
 
-  const address = [
-    firstLine,
-    secondLine,
-  ]
+  return [firstLine, secondLine]
     .filter((item) => item.trim() !== "")
     .join("\n");
-
-  return value(address);
 }
 
 function formatBeneficiaries(form: QuoteFormData) {
@@ -64,119 +59,196 @@ function formatBeneficiaries(form: QuoteFormData) {
 }
 
 function formatAutoMessage(form: QuoteFormData) {
-  return [
+  const lines: string[] = [
     "🚗 NOVA SOLICITAÇÃO DE COTAÇÃO - VETTOR SEGUROS",
     "",
-    "Seguro: " + value(form.insuranceType),
+    "SEGURO AUTO",
     "",
-    "CLIENTE",
+    "👤 DADOS DO CLIENTE",
     "Nome: " + value(form.name),
     "Telefone: " + value(form.phone),
-    "E-mail: " + value(form.email),
+  ];
+
+  if (form.email.trim() !== "") {
+    lines.push("E-mail: " + form.email.trim());
+  }
+
+  lines.push(
     "CPF: " + value(form.cpf),
     "",
-    "VEÍCULO",
+    "🚘 VEÍCULO",
     "Marca: " + value(form.vehicleBrand),
     "Modelo: " + value(form.vehicleModel),
-    "Ano: " + value(form.vehicleYear),
-    "CEP de pernoite: " + value(form.vehicleCep),
-    "Endereço:",
-    formatAddress(form),
+    "Ano / Versão: " + value(form.vehicleYear)
+  );
+
+  if (form.vehicleFuel.trim() !== "") {
+    lines.push(
+      "Combustível: " + form.vehicleFuel.trim()
+    );
+  }
+
+  if (form.vehicleFipeCode.trim() !== "") {
+    lines.push(
+      "Código FIPE: " + form.vehicleFipeCode.trim()
+    );
+  }
+
+  lines.push(
     "Garagem: " + value(form.vehicleGarage),
     "Uso por aplicativo: " + value(form.vehicleApp),
     "Rastreador: " + value(form.vehicleTracker),
     "",
-    "CONDUTOR",
+    "📍 ENDEREÇO DE PERNOITE",
+    "CEP: " + value(form.vehicleCep),
+    formatAddress(form) || "Endereço não informado",
+    "",
+    "👤 CONDUTOR PRINCIPAL",
     "Nome: " + value(form.driverName),
-    "Nascimento: " + value(form.driverBirthDate),
-    "Estado civil: " + value(form.driverMaritalStatus),
-    "Profissão: " + value(form.driverProfession),
-    "Principal condutor: " + value(form.driverIsMain),
+    "Data de nascimento: " +
+      value(form.driverBirthDate),
+    "Estado civil: " +
+      value(form.driverMaritalStatus),
+    "Profissão: " +
+      value(form.driverProfession),
+    "É o principal condutor: " +
+      value(form.driverIsMain),
     "Outro condutor frequente: " +
       value(form.driverHasSecondary),
-    "Condutor de 18 a 25 anos: " +
+    "Condutor entre 18 e 25 anos: " +
       value(form.driverYoung),
     "",
-    "HISTÓRICO",
-    "Seguro atual: " + value(form.currentInsurance),
-    "Seguradora: " + value(form.currentInsurer),
-    "Classe de bônus: " + value(form.bonusClass),
-    "Sinistro: " + value(form.hadClaims),
-    "Quantidade: " + value(form.claimsCount),
-    "Recusa anterior: " +
-      value(form.insuranceRefused),
+    "📋 HISTÓRICO DO SEGURO",
+    "Possui seguro atualmente: " +
+      value(form.currentInsurance)
+  );
+
+  if (form.currentInsurance === "Sim") {
+    lines.push(
+      "Seguradora atual: " +
+        value(form.currentInsurer),
+      "Classe de bônus: " +
+        value(form.bonusClass),
+      "Sinistro na vigência atual: " +
+        value(form.hadClaims)
+    );
+
+    if (form.hadClaims === "Sim") {
+      lines.push(
+        "Quantidade de sinistros: " +
+          value(form.claimsCount)
+      );
+    }
+  }
+
+  if (form.currentInsurance === "Não") {
+    lines.push("Cliente sem seguro vigente.");
+  }
+
+  lines.push(
     "",
-    "COBERTURAS",
-    formatCoverages(form),
-    "",
-    "OBSERVAÇÕES",
-    value(form.observations),
-  ].join("\n");
+    "🛡️ COBERTURAS DESEJADAS",
+    formatCoverages(form)
+  );
+
+  if (form.observations.trim() !== "") {
+    lines.push(
+      "",
+      "📝 OBSERVAÇÕES",
+      form.observations.trim()
+    );
+  }
+
+  return lines.join("\n");
 }
 
 function formatResidentialMessage(
   form: QuoteFormData
 ) {
-  return [
+  const lines: string[] = [
     "🏠 NOVA SOLICITAÇÃO DE COTAÇÃO - VETTOR SEGUROS",
     "",
-    "Seguro: " + value(form.insuranceType),
+    "SEGURO RESIDENCIAL",
     "",
-    "CLIENTE",
+    "👤 DADOS DO CLIENTE",
     "Nome: " + value(form.name),
     "Telefone: " + value(form.phone),
-    "E-mail: " + value(form.email),
+  ];
+
+  if (form.email.trim() !== "") {
+    lines.push("E-mail: " + form.email.trim());
+  }
+
+  lines.push(
     "CPF: " + value(form.cpf),
     "",
-    "IMÓVEL",
-    "CEP: " + value(form.vehicleCep),
-    "Endereço:",
-    formatAddress(form),
-    "Tipo: " + value(form.vehicleBrand),
-    "Situação: " + value(form.vehicleModel),
+    "🏠 DADOS DO IMÓVEL",
+    "CEP: " + value(form.propertyCep),
+    formatAddress(form) || "Endereço não informado",
+    "Tipo do imóvel: " + value(form.propertyType),
+    "Situação do imóvel: " +
+      value(form.propertyStatus),
     "Área construída: " +
-      value(form.vehicleYear) +
-      " m²",
+      value(form.propertyArea) +
+      (form.propertyArea.trim() !== ""
+        ? " m²"
+        : ""),
     "Valor aproximado: " +
-      value(form.observations),
+      value(form.propertyValue),
     "",
-    "PERFIL DO IMÓVEL",
-    "Utilização: " + value(form.driverIsMain),
+    "🔐 PERFIL DO IMÓVEL",
+    "Utilização: " + value(form.propertyUse),
     "Possui alarme: " +
-      value(form.driverHasSecondary),
+      value(form.propertyAlarm),
     "Monitoramento eletrônico: " +
-      value(form.driverYoung),
+      value(form.propertyMonitoring),
     "Condomínio fechado: " +
-      value(form.vehicleGarage),
+      value(form.propertyGatedCommunity),
     "",
-    "COBERTURAS",
-    formatCoverages(form),
-  ].join("\n");
+    "🛡️ COBERTURAS DESEJADAS",
+    formatCoverages(form)
+  );
+
+  if (form.observations.trim() !== "") {
+    lines.push(
+      "",
+      "📝 OBSERVAÇÕES",
+      form.observations.trim()
+    );
+  }
+
+  return lines.join("\n");
 }
 
 function formatLifeMessage(form: QuoteFormData) {
-  return [
+  const lines: string[] = [
     "❤️ NOVA SOLICITAÇÃO DE COTAÇÃO - VETTOR SEGUROS",
     "",
-    "Seguro: " + value(form.insuranceType),
+    "SEGURO DE VIDA",
     "",
-    "SEGURADO",
+    "👤 DADOS DO SEGURADO",
     "Nome: " + value(form.name),
     "Telefone: " + value(form.phone),
-    "E-mail: " + value(form.email),
+  ];
+
+  if (form.email.trim() !== "") {
+    lines.push("E-mail: " + form.email.trim());
+  }
+
+  lines.push(
     "CPF: " + value(form.cpf),
     "",
-    "PERFIL DO SEGURADO",
+    "🧾 PERFIL DO SEGURADO",
     "Data de nascimento: " +
       value(form.lifeBirthDate),
     "Estado civil: " +
       value(form.lifeMaritalStatus),
     "Profissão: " +
       value(form.lifeProfession),
-    "Renda mensal: " +
+    "Renda mensal aproximada: " +
       value(form.lifeMonthlyIncome),
     "",
-    "SAÚDE E ATIVIDADES",
+    "⚕️ SAÚDE E ATIVIDADES",
     "Fumante: " + value(form.lifeSmoker),
     "Atividade profissional de risco: " +
       value(form.lifeRiskActivity),
@@ -185,18 +257,25 @@ function formatLifeMessage(form: QuoteFormData) {
     "Viagens frequentes a trabalho: " +
       value(form.lifeFrequentTravel),
     "",
-    "CAPITAL E COBERTURAS",
+    "🛡️ CAPITAL E COBERTURAS",
     "Capital segurado: " +
       value(form.lifeInsuredCapital),
     "",
     formatCoverages(form),
     "",
-    "BENEFICIÁRIOS",
-    formatBeneficiaries(form),
-    "",
-    "OBSERVAÇÕES",
-    value(form.observations),
-  ].join("\n");
+    "👥 BENEFICIÁRIOS",
+    formatBeneficiaries(form)
+  );
+
+  if (form.observations.trim() !== "") {
+    lines.push(
+      "",
+      "📝 OBSERVAÇÕES",
+      form.observations.trim()
+    );
+  }
+
+  return lines.join("\n");
 }
 
 export function formatWhatsAppMessage(

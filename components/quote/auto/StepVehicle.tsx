@@ -3,32 +3,93 @@
 import { useRef } from "react";
 
 import Input from "../../ui/Input";
-import Select from "../../ui/Select";
 import RadioGroup from "../../ui/RadioGroup";
 
 import StepLayout from "../common/StepLayout";
+import VehicleSelector from "../components/VehicleSelector";
+
 import { useQuote } from "../context/QuoteContext";
 import { useCep } from "../hooks/useCep";
 
-const years = Array.from({ length: 26 }, (_, index) => {
-  const year = new Date().getFullYear() - index;
-
-  return {
-    label: year.toString(),
-    value: year.toString(),
-  };
-});
-
 export default function StepVehicle() {
-  const { form, updateField, updateFields } = useQuote();
-  const { loading, findCep } = useCep();
+  const {
+    form,
+    updateField,
+    updateFields,
+  } = useQuote();
+
+  const {
+    loading,
+    findCep,
+  } = useCep();
 
   const lastSearchedCep = useRef("");
+
+  function handleBrandChange(
+    code: string,
+    name: string
+  ) {
+    updateFields({
+      vehicleBrandCode: code,
+      vehicleBrand: name,
+
+      vehicleModelCode: "",
+      vehicleModel: "",
+
+      vehicleYearCode: "",
+      vehicleYear: "",
+
+      vehicleFuel: "",
+      vehicleFipeCode: "",
+      vehicleZeroKm: "",
+    });
+  }
+
+  function handleModelChange(
+    code: string,
+    name: string
+  ) {
+    updateFields({
+      vehicleModelCode: code,
+      vehicleModel: name,
+
+      vehicleYearCode: "",
+      vehicleYear: "",
+
+      vehicleFuel: "",
+      vehicleFipeCode: "",
+      vehicleZeroKm: "",
+    });
+  }
+
+  function handleYearChange(
+    code: string,
+    name: string,
+    fuel: string
+  ) {
+    const isZeroKm =
+      name.toLowerCase().startsWith(
+        "zero km"
+      );
+
+    updateFields({
+      vehicleYearCode: code,
+      vehicleYear: name,
+      vehicleFuel: fuel,
+      vehicleZeroKm: isZeroKm
+        ? "Sim"
+        : "Não",
+      vehicleFipeCode: "",
+    });
+  }
 
   function handleCepChange(value: string) {
     updateField("vehicleCep", value);
 
-    const numbers = value.replace(/\D/g, "");
+    const numbers = value.replace(
+      /\D/g,
+      ""
+    );
 
     if (numbers.length < 8) {
       lastSearchedCep.current = "";
@@ -45,49 +106,65 @@ export default function StepVehicle() {
       return;
     }
 
-    if (numbers === lastSearchedCep.current) {
+    if (
+      numbers === lastSearchedCep.current
+    ) {
       return;
     }
 
     lastSearchedCep.current = numbers;
 
-    void findCep(value, (addressData) => {
-      updateFields({
-        address: addressData.address,
-        district: addressData.district,
-        city: addressData.city,
-        state: addressData.state,
-      });
-    });
+    void findCep(
+      value,
+      (addressData) => {
+        updateFields({
+          address: addressData.address,
+          district:
+            addressData.district,
+          city: addressData.city,
+          state: addressData.state,
+        });
+      }
+    );
   }
 
   return (
     <StepLayout
       title="Dados do veículo"
-      subtitle="Informe os dados principais para iniciarmos sua cotação."
+      subtitle="Selecione os dados do veículo e informe o endereço onde ele permanece durante a noite."
     >
-      <Input
-        label="Marca"
-        value={form.vehicleBrand}
-        placeholder="Ex.: Toyota"
-        required
-        onChange={(value) => updateField("vehicleBrand", value)}
+      <VehicleSelector
+        brandCode={
+          form.vehicleBrandCode
+        }
+        modelCode={
+          form.vehicleModelCode
+        }
+        yearCode={
+          form.vehicleYearCode
+        }
+        onBrandChange={
+          handleBrandChange
+        }
+        onModelChange={
+          handleModelChange
+        }
+        onYearChange={
+          handleYearChange
+        }
       />
 
-      <Input
-        label="Modelo"
-        value={form.vehicleModel}
-        placeholder="Ex.: Corolla"
-        required
-        onChange={(value) => updateField("vehicleModel", value)}
-      />
+      {form.vehicleFuel && (
+        <div className="mb-6 rounded-xl border border-blue-100 bg-blue-50 p-4">
+          <p className="text-sm text-gray-600">
+            Combustível identificado
+          </p>
 
-      <Select
-        label="Ano do veículo"
-        value={form.vehicleYear}
-        options={years}
-        onChange={(value) => updateField("vehicleYear", value)}
-      />
+          <p className="mt-1 font-semibold text-blue-900">
+            {form.vehicleFuel}
+          </p>
+        </div>
+      )}
 
       <Input
         label="CEP de pernoite"
@@ -110,7 +187,8 @@ export default function StepVehicle() {
         </h3>
 
         <p className="mb-5 text-sm text-gray-600">
-          Confira os dados encontrados e complete ou altere as informações
+          Confira os dados encontrados e
+          complete ou altere as informações
           quando necessário.
         </p>
 
@@ -119,23 +197,42 @@ export default function StepVehicle() {
           value={form.address}
           placeholder="Digite a rua ou o logradouro"
           required
-          onChange={(value) => updateField("address", value)}
+          onChange={(value) =>
+            updateField(
+              "address",
+              value
+            )
+          }
         />
 
         <div className="grid gap-4 md:grid-cols-2">
           <Input
             label="Número"
-            value={form.addressNumber}
+            value={
+              form.addressNumber
+            }
             placeholder="Ex.: 125"
             required
-            onChange={(value) => updateField("addressNumber", value)}
+            onChange={(value) =>
+              updateField(
+                "addressNumber",
+                value
+              )
+            }
           />
 
           <Input
             label="Complemento"
-            value={form.addressComplement}
+            value={
+              form.addressComplement
+            }
             placeholder="Apto., bloco, casa, lote..."
-            onChange={(value) => updateField("addressComplement", value)}
+            onChange={(value) =>
+              updateField(
+                "addressComplement",
+                value
+              )
+            }
           />
         </div>
 
@@ -144,7 +241,12 @@ export default function StepVehicle() {
           value={form.district}
           placeholder="Digite o bairro"
           required
-          onChange={(value) => updateField("district", value)}
+          onChange={(value) =>
+            updateField(
+              "district",
+              value
+            )
+          }
         />
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -153,7 +255,12 @@ export default function StepVehicle() {
             value={form.city}
             placeholder="Digite a cidade"
             required
-            onChange={(value) => updateField("city", value)}
+            onChange={(value) =>
+              updateField(
+                "city",
+                value
+              )
+            }
           />
 
           <Input
@@ -162,7 +269,12 @@ export default function StepVehicle() {
             placeholder="Ex.: MG"
             required
             onChange={(value) =>
-              updateField("state", value.toUpperCase().slice(0, 2))
+              updateField(
+                "state",
+                value
+                  .toUpperCase()
+                  .slice(0, 2)
+              )
             }
           />
         </div>
@@ -171,30 +283,63 @@ export default function StepVehicle() {
       <RadioGroup
         label="O veículo permanece em garagem?"
         value={form.vehicleGarage}
-        onChange={(value) => updateField("vehicleGarage", value)}
+        onChange={(value) =>
+          updateField(
+            "vehicleGarage",
+            value
+          )
+        }
         options={[
-          { label: "Sim", value: "Sim" },
-          { label: "Não", value: "Não" },
+          {
+            label: "Sim",
+            value: "Sim",
+          },
+          {
+            label: "Não",
+            value: "Não",
+          },
         ]}
       />
 
       <RadioGroup
         label="Utiliza para aplicativo (Uber/99)?"
         value={form.vehicleApp}
-        onChange={(value) => updateField("vehicleApp", value)}
+        onChange={(value) =>
+          updateField(
+            "vehicleApp",
+            value
+          )
+        }
         options={[
-          { label: "Sim", value: "Sim" },
-          { label: "Não", value: "Não" },
+          {
+            label: "Sim",
+            value: "Sim",
+          },
+          {
+            label: "Não",
+            value: "Não",
+          },
         ]}
       />
 
       <RadioGroup
         label="Possui rastreador?"
         value={form.vehicleTracker}
-        onChange={(value) => updateField("vehicleTracker", value)}
+        onChange={(value) =>
+          updateField(
+            "vehicleTracker",
+            value
+          )
+        }
         options={[
-          { label: "Sim", value: "Sim" },
-          { label: "Não", value: "Não" },
+          {
+            label: "Sim",
+            value: "Sim",
+          },
+          {
+            label: "Não",
+            value: "Não",
+          },
         ]}
       />
     </StepLayout>

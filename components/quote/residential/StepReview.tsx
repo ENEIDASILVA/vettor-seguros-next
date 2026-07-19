@@ -20,6 +20,11 @@ export default function StepReview({
     .filter((item) => item.trim() !== "")
     .join(", ");
 
+  const cityAndState =
+    form.city && form.state
+      ? form.city + " - " + form.state
+      : form.city || form.state;
+
   return (
     <StepLayout
       title="Revise sua solicitação"
@@ -30,10 +35,27 @@ export default function StepReview({
           title="Dados do segurado"
           onEdit={() => onEdit(2)}
         >
-          <SummaryField label="Nome" value={form.name} />
-          <SummaryField label="Telefone" value={form.phone} />
-          <SummaryField label="E-mail" value={form.email} />
-          <SummaryField label="CPF" value={form.cpf} />
+          <SummaryField
+            label="Nome"
+            value={form.name}
+          />
+
+          <SummaryField
+            label="Telefone"
+            value={form.phone}
+          />
+
+          {form.email.trim() !== "" && (
+            <SummaryField
+              label="E-mail"
+              value={form.email}
+            />
+          )}
+
+          <SummaryField
+            label="CPF"
+            value={form.cpf}
+          />
         </SummaryCard>
 
         <SummaryCard
@@ -42,7 +64,7 @@ export default function StepReview({
         >
           <SummaryField
             label="CEP"
-            value={form.vehicleCep}
+            value={form.propertyCep}
           />
 
           <SummaryField
@@ -57,35 +79,31 @@ export default function StepReview({
 
           <SummaryField
             label="Cidade/UF"
-            value={
-              form.city && form.state
-                ? form.city + " - " + form.state
-                : ""
-            }
+            value={cityAndState}
           />
 
           <SummaryField
             label="Tipo do imóvel"
-            value={form.vehicleBrand}
+            value={form.propertyType}
           />
 
           <SummaryField
             label="Situação"
-            value={form.vehicleModel}
+            value={form.propertyStatus}
           />
 
           <SummaryField
             label="Área construída"
             value={
-              form.vehicleYear
-                ? form.vehicleYear + " m²"
+              form.propertyArea
+                ? form.propertyArea + " m²"
                 : ""
             }
           />
 
           <SummaryField
             label="Valor aproximado"
-            value={form.observations}
+            value={form.propertyValue}
           />
         </SummaryCard>
 
@@ -95,22 +113,22 @@ export default function StepReview({
         >
           <SummaryField
             label="Utilização"
-            value={form.driverIsMain}
+            value={form.propertyUse}
           />
 
           <SummaryField
             label="Possui alarme"
-            value={form.driverHasSecondary}
+            value={form.propertyAlarm}
           />
 
           <SummaryField
             label="Monitoramento eletrônico"
-            value={form.driverYoung}
+            value={form.propertyMonitoring}
           />
 
           <SummaryField
             label="Condomínio fechado"
-            value={form.vehicleGarage}
+            value={form.propertyGatedCommunity}
           />
         </SummaryCard>
 

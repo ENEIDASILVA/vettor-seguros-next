@@ -20,6 +20,11 @@ export default function StepReview({
     .filter((item) => item.trim() !== "")
     .join(", ");
 
+  const cityAndState =
+    form.city && form.state
+      ? form.city + " - " + form.state
+      : form.city || form.state;
+
   return (
     <StepLayout
       title="Revise sua solicitação"
@@ -30,53 +35,61 @@ export default function StepReview({
           title="Dados do segurado"
           onEdit={() => onEdit(2)}
         >
-          <SummaryField label="Nome" value={form.name} />
-          <SummaryField label="Telefone" value={form.phone} />
-          <SummaryField label="E-mail" value={form.email} />
-          <SummaryField label="CPF" value={form.cpf} />
+          <SummaryField
+            label="Nome"
+            value={form.name}
+          />
+
+          <SummaryField
+            label="Telefone"
+            value={form.phone}
+          />
+
+          {form.email.trim() !== "" && (
+            <SummaryField
+              label="E-mail"
+              value={form.email}
+            />
+          )}
+
+          <SummaryField
+            label="CPF"
+            value={form.cpf}
+          />
         </SummaryCard>
 
         <SummaryCard
-          title="Veículo e endereço de pernoite"
+          title="Veículo"
           onEdit={() => onEdit(3)}
         >
           <SummaryField
-            label="Veículo"
-            value={
-              form.vehicleBrand +
-              " " +
-              form.vehicleModel
-            }
+            label="Marca"
+            value={form.vehicleBrand}
           />
 
           <SummaryField
-            label="Ano"
+            label="Modelo"
+            value={form.vehicleModel}
+          />
+
+          <SummaryField
+            label="Ano / Versão"
             value={form.vehicleYear}
           />
 
-          <SummaryField
-            label="CEP"
-            value={form.vehicleCep}
-          />
+          {form.vehicleFuel.trim() !== "" && (
+            <SummaryField
+              label="Combustível"
+              value={form.vehicleFuel}
+            />
+          )}
 
-          <SummaryField
-            label="Endereço"
-            value={fullAddress}
-          />
-
-          <SummaryField
-            label="Bairro"
-            value={form.district}
-          />
-
-          <SummaryField
-            label="Cidade/UF"
-            value={
-              form.city && form.state
-                ? form.city + " - " + form.state
-                : ""
-            }
-          />
+          {form.vehicleFipeCode.trim() !== "" && (
+            <SummaryField
+              label="Código FIPE"
+              value={form.vehicleFipeCode}
+            />
+          )}
 
           <SummaryField
             label="Garagem"
@@ -95,6 +108,31 @@ export default function StepReview({
         </SummaryCard>
 
         <SummaryCard
+          title="Endereço de pernoite"
+          onEdit={() => onEdit(3)}
+        >
+          <SummaryField
+            label="CEP"
+            value={form.vehicleCep}
+          />
+
+          <SummaryField
+            label="Endereço"
+            value={fullAddress}
+          />
+
+          <SummaryField
+            label="Bairro"
+            value={form.district}
+          />
+
+          <SummaryField
+            label="Cidade/UF"
+            value={cityAndState}
+          />
+        </SummaryCard>
+
+        <SummaryCard
           title="Condutor principal"
           onEdit={() => onEdit(4)}
         >
@@ -104,7 +142,7 @@ export default function StepReview({
           />
 
           <SummaryField
-            label="Nascimento"
+            label="Data de nascimento"
             value={form.driverBirthDate}
           />
 
@@ -119,12 +157,17 @@ export default function StepReview({
           />
 
           <SummaryField
+            label="É o principal condutor"
+            value={form.driverIsMain}
+          />
+
+          <SummaryField
             label="Outro condutor frequente"
             value={form.driverHasSecondary}
           />
 
           <SummaryField
-            label="Condutor de 18 a 25 anos"
+            label="Condutor entre 18 e 25 anos"
             value={form.driverYoung}
           />
         </SummaryCard>
@@ -134,36 +177,35 @@ export default function StepReview({
           onEdit={() => onEdit(5)}
         >
           <SummaryField
-            label="Possui seguro atual"
+            label="Possui seguro atualmente"
             value={form.currentInsurance}
           />
 
-          <SummaryField
-            label="Seguradora"
-            value={form.currentInsurer}
-          />
+          {form.currentInsurance === "Sim" && (
+            <>
+              <SummaryField
+                label="Seguradora atual"
+                value={form.currentInsurer}
+              />
 
-          <SummaryField
-            label="Classe de bônus"
-            value={form.bonusClass}
-          />
+              <SummaryField
+                label="Classe de bônus"
+                value={form.bonusClass}
+              />
 
-          <SummaryField
-            label="Sinistros"
-            value={form.hadClaims}
-          />
+              <SummaryField
+                label="Sinistro na vigência atual"
+                value={form.hadClaims}
+              />
 
-          {form.hadClaims === "Sim" && (
-            <SummaryField
-              label="Quantidade"
-              value={form.claimsCount}
-            />
+              {form.hadClaims === "Sim" && (
+                <SummaryField
+                  label="Quantidade de sinistros"
+                  value={form.claimsCount}
+                />
+              )}
+            </>
           )}
-
-          <SummaryField
-            label="Recusa anterior"
-            value={form.insuranceRefused}
-          />
         </SummaryCard>
 
         <SummaryCard
