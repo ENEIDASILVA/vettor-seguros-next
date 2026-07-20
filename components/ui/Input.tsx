@@ -53,24 +53,24 @@ export default function Input({
   validateCpf = true,
   onChange,
 }: InputProps) {
-  const automaticDateError =
-    mask === "date" && validateDate
-      ? getDateValidationError(
-          value,
-          minimumAge,
-          maximumAge
-        )
-      : "";
-
   const safeValue = value ?? "";
 
-  const cpfNumbers = safeValue.replace(/\D/g, "");
+const automaticDateError =
+  mask === "date" && validateDate
+    ? getDateValidationError(
+        safeValue,
+        minimumAge,
+        maximumAge
+      )
+    : "";
+
+    const cpfNumbers = safeValue.replace(/\D/g, "");
 
   const automaticCpfError =
     mask === "cpf" &&
     validateCpf &&
     cpfNumbers.length === 11 &&
-    !isValidCPF(value)
+    !isValidCPF(safeValue)
       ? "CPF inválido. Verifique os números informados."
       : "";
 
