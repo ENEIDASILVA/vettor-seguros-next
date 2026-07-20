@@ -15,30 +15,29 @@ const partners = [
 
 export default function Partners() {
   return (
-    <section className="bg-[#F5F7FA] px-6 py-24">
+    <section
+      id="seguradoras"
+      className="scroll-mt-24 bg-[#F5F7FA] px-6 py-16"
+    >
       <Container>
         <SectionTitle
           badge="Seguradoras"
-          title="As melhores opções para proteger você"
-          subtitle="A Vettor Seguros trabalha para oferecer soluções entre as principais seguradoras do mercado, buscando sempre a proteção mais adequada ao seu perfil."
+          title="Opções entre grandes seguradoras do mercado"
+          subtitle="A Vettor Seguros busca alternativas para encontrar a proteção mais adequada ao seu perfil e às suas necessidades."
         />
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {partners.map((partner) => (
             <Card
               key={partner}
-              className="flex h-28 items-center justify-center text-center"
+              className="flex h-24 items-center justify-center text-center"
             >
-              <span className="text-xl font-bold text-[#0B2E6D]">
+              <span className="text-lg font-bold text-[#0B2E6D]">
                 {partner}
               </span>
             </Card>
           ))}
         </div>
-
-        <p className="mt-8 text-center text-sm text-gray-500">
-          Em breve, esta seção exibirá os logotipos oficiais das seguradoras parceiras da Vettor Seguros.
-        </p>
       </Container>
     </section>
   );

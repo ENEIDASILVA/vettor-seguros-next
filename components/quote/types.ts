@@ -1,6 +1,5 @@
 export type InsuranceType =
   | "Seguro Auto"
-  | "Seguro Moto"
   | "Seguro Residencial"
   | "Seguro de Vida"
   | "Seguro Empresarial"

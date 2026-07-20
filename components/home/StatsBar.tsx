@@ -1,4 +1,9 @@
-import { ShieldCheck, Handshake, Clock3, Headphones } from "lucide-react";
+import {
+  ShieldCheck,
+  Handshake,
+  Clock3,
+  Headphones,
+} from "lucide-react";
 
 const stats = [
   {
@@ -25,20 +30,31 @@ const stats = [
 
 export default function StatsBar() {
   return (
-    <section className="bg-white px-6 py-8 shadow-sm">
+    <section
+      id="diferenciais"
+      className="scroll-mt-24 bg-white px-6 py-8 shadow-sm"
+    >
       <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-4">
         {stats.map((item) => {
           const Icon = item.icon;
 
           return (
-            <div key={item.title} className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0B2E6D] text-white">
+            <div
+              key={item.title}
+              className="flex items-center gap-4"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#0B2E6D] text-white">
                 <Icon size={24} />
               </div>
 
               <div>
-                <h3 className="font-bold text-[#0B2E6D]">{item.title}</h3>
-                <p className="text-sm text-gray-600">{item.text}</p>
+                <h3 className="font-bold text-[#0B2E6D]">
+                  {item.title}
+                </h3>
+
+                <p className="text-sm text-gray-600">
+                  {item.text}
+                </p>
               </div>
             </div>
           );

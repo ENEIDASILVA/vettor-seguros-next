@@ -1,81 +1,110 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+
+import Button from "../ui/Button";
+
+const menu = [
+  { label: "Início", href: "#inicio" },
+  { label: "Seguros", href: "#seguros" },
+  { label: "Diferenciais", href: "#diferenciais" },
+  { label: "Como funciona", href: "#como-funciona" },
+  { label: "Cotação", href: "#cotacao" },
+];
 
 export default function Header() {
-  const [open, setOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
 
-  const links = [
-    { label: "Início", href: "#inicio" },
-    { label: "Seguros", href: "#seguros" },
-    { label: "Sobre", href: "#sobre" },
-    { label: "Contato", href: "#contato" },
-  ];
+  function closeMobileMenu() {
+    setMobileMenuOpen(false);
+  }
 
   return (
-    <header className="fixed left-0 top-0 z-50 w-full bg-[#0B2E6D]/95 shadow-lg backdrop-blur-md">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-        <a href="#inicio" className="flex items-center">
+    <header className="fixed left-0 top-0 z-50 w-full bg-[#061B3A]/95 shadow-lg backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <a
+          href="#inicio"
+          onClick={closeMobileMenu}
+          aria-label="Ir para o início"
+        >
           <Image
             src="/logo/logo.svg"
-            alt="Vettor Seguros"
-            width={180}
+            alt="VETTOR Seguros"
+            width={170}
             height={50}
             priority
           />
         </a>
 
-        <nav className="hidden items-center gap-8 font-medium text-white md:flex">
-          {links.map((link) => (
-            <a key={link.href} href={link.href} className="transition hover:text-blue-300">
-              {link.label}
+        <nav className="hidden items-center gap-7 lg:flex">
+          {menu.map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              className="font-medium text-white transition hover:text-blue-200"
+            >
+              {item.label}
             </a>
           ))}
         </nav>
 
-        <a
-          href="https://wa.me/5531993539953"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hidden rounded-xl bg-green-500 px-5 py-3 font-semibold text-white transition hover:bg-green-600 md:inline-block"
-        >
-          Cotação
-        </a>
+        <div className="hidden lg:block">
+          <Button
+            href="#cotacao"
+            variant="whatsapp"
+          >
+            Solicitar Cotação
+          </Button>
+        </div>
 
         <button
-          onClick={() => setOpen(!open)}
-          className="text-white md:hidden"
-          aria-label="Abrir menu"
+          type="button"
+          onClick={() =>
+            setMobileMenuOpen(
+              (previous) => !previous
+            )
+          }
+          aria-label={
+            mobileMenuOpen
+              ? "Fechar menu"
+              : "Abrir menu"
+          }
+          aria-expanded={mobileMenuOpen}
+          className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 text-white transition hover:bg-white/10 lg:hidden"
         >
-          {open ? <X size={32} /> : <Menu size={32} />}
+          {mobileMenuOpen ? (
+            <X size={26} />
+          ) : (
+            <Menu size={26} />
+          )}
         </button>
       </div>
 
-      {open && (
-        <div className="border-t border-white/10 bg-[#0B2E6D] px-6 py-6 md:hidden">
-          <nav className="flex flex-col gap-5 font-medium text-white">
-            {links.map((link) => (
+      {mobileMenuOpen && (
+        <div className="border-t border-white/10 bg-[#061B3A] px-6 pb-6 lg:hidden">
+          <nav className="flex flex-col">
+            {menu.map((item) => (
               <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="transition hover:text-blue-300"
+                key={item.label}
+                href={item.href}
+                onClick={closeMobileMenu}
+                className="border-b border-white/10 py-4 font-medium text-white transition hover:text-blue-200"
               >
-                {link.label}
+                {item.label}
               </a>
             ))}
-
-            <a
-              href="https://wa.me/5531993539953"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-xl bg-green-500 px-5 py-3 text-center font-semibold text-white"
-            >
-              Solicitar Cotação
-            </a>
           </nav>
+
+          <a
+            href="#cotacao"
+            onClick={closeMobileMenu}
+            className="mt-6 flex w-full items-center justify-center rounded-xl bg-green-500 px-5 py-3 font-semibold text-white transition hover:bg-green-600"
+          >
+            Solicitar Cotação
+          </a>
         </div>
       )}
     </header>
