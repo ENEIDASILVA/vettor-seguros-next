@@ -5,83 +5,20 @@ import {
   Mail,
   MapPin,
   ShieldCheck,
+  Camera,
 } from "lucide-react";
 
 import Container from "../ui/Container";
 import Button from "../ui/Button";
 
-const onlineQuoteServices = [
-  {
-    label: "Seguro Auto",
-    insuranceType: "Seguro Auto",
-  },
-  {
-    label: "Seguro Residencial",
-    insuranceType: "Seguro Residencial",
-  },
-  {
-    label: "Seguro de Vida",
-    insuranceType: "Seguro de Vida",
-  },
-];
-
-const whatsappServices = [
-  "Seguro Empresarial",
-  "Seguro Saúde",
-  "Seguro Rural",
-  "Seguro Frota",
-];
-
 export default function Footer() {
-  function startOnlineQuote(
-    insuranceType: string
-  ) {
-    window.dispatchEvent(
-      new CustomEvent("vettor:start-quote", {
-        detail: {
-          insuranceType,
-        },
-      })
-    );
-
-    document
-      .getElementById("cotacao")
-      ?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-  }
-
-  function openWhatsApp(
-    insuranceType: string
-  ) {
-    const phone = "5531993539953";
-
-    const message =
-      "Olá! Gostaria de solicitar uma cotação de " +
-      insuranceType +
-      ".";
-
-    const link =
-      "https://wa.me/" +
-      phone +
-      "?text=" +
-      encodeURIComponent(message);
-
-    window.open(
-      link,
-      "_blank",
-      "noopener,noreferrer"
-    );
-  }
-
   return (
     <footer
       id="contato"
       className="bg-[#061B3A] text-white"
     >
       <Container>
-        <div className="grid gap-10 py-14 md:grid-cols-4">
+        <div className="grid gap-10 py-14 md:grid-cols-3">
           <div>
             <a
               href="#inicio"
@@ -104,48 +41,6 @@ export default function Footer() {
 
           <div>
             <h3 className="mb-5 text-xl font-bold">
-              Seguros
-            </h3>
-
-            <ul className="space-y-3 text-gray-300">
-              {onlineQuoteServices.map(
-                (service) => (
-                  <li key={service.label}>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        startOnlineQuote(
-                          service.insuranceType
-                        )
-                      }
-                      className="transition hover:text-white"
-                    >
-                      {service.label}
-                    </button>
-                  </li>
-                )
-              )}
-
-              {whatsappServices.map(
-                (service) => (
-                  <li key={service}>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        openWhatsApp(service)
-                      }
-                      className="transition hover:text-white"
-                    >
-                      {service}
-                    </button>
-                  </li>
-                )
-              )}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="mb-5 text-xl font-bold">
               Contato
             </h3>
 
@@ -162,13 +57,26 @@ export default function Footer() {
               </a>
 
               <a
-                href="mailto:contato@vettorseguros.com.br"
+                href="mailto:eneida.corretoradeseguros@gmail.com"
                 className="flex items-center gap-3 text-gray-300 transition hover:text-white"
               >
                 <Mail size={18} />
 
                 <span>
-                  contato@vettorseguros.com.br
+                  eneida.corretoradeseguros@gmail.com
+                </span>
+              </a>
+
+              <a
+                href="https://www.instagram.com/vettorseguros"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-gray-300 transition hover:text-white"
+              >
+                <Camera size={18} />
+
+                <span>
+                  @vettorseguros
                 </span>
               </a>
 

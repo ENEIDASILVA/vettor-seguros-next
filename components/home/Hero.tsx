@@ -9,7 +9,7 @@ export default function Hero() {
   return (
     <section
       id="inicio"
-      className="bg-[#061B3A] pt-[72px]"
+      className="bg-[#061B3A]"
     >
       <div className="relative w-full overflow-hidden">
         <div className="block sm:hidden">
