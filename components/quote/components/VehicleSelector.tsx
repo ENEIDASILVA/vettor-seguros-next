@@ -8,7 +8,13 @@ import Autocomplete, {
 
 import { useFipe } from "../hooks/useFipe";
 
+import {
+  FipeVehicleType,
+} from "../services/fipe";
+
 interface VehicleSelectorProps {
+  vehicleType: FipeVehicleType | "";
+
   brandCode: string;
   modelCode: string;
   yearCode: string;
@@ -30,15 +36,20 @@ interface VehicleSelectorProps {
   ) => void;
 }
 
-function extractFuel(yearLabel: string) {
-  const normalizedLabel = yearLabel.trim();
+function extractFuel(
+  yearLabel: string
+) {
+  const normalizedLabel =
+    yearLabel.trim();
 
   if (
-    normalizedLabel.toLowerCase().startsWith(
-      "zero km "
-    )
+    normalizedLabel
+      .toLowerCase()
+      .startsWith("zero km ")
   ) {
-    return normalizedLabel.substring(8).trim();
+    return normalizedLabel
+      .substring(8)
+      .trim();
   }
 
   const firstSpace =
@@ -54,6 +65,7 @@ function extractFuel(yearLabel: string) {
 }
 
 export default function VehicleSelector({
+  vehicleType,
   brandCode,
   modelCode,
   yearCode,
@@ -74,36 +86,71 @@ export default function VehicleSelector({
     modelsError,
     yearsError,
 
+    loadBrands,
     loadModels,
     loadYears,
   } = useFipe();
 
   useEffect(() => {
-    if (brandCode) {
-      void loadModels(brandCode);
+    if (!vehicleType) {
+      return;
     }
-  }, [brandCode, loadModels]);
+
+    void loadBrands(vehicleType);
+  }, [
+    vehicleType,
+    loadBrands,
+  ]);
 
   useEffect(() => {
-    if (brandCode && modelCode) {
-      void loadYears(
-        brandCode,
-        modelCode
-      );
+    if (
+      !vehicleType ||
+      !brandCode
+    ) {
+      return;
     }
+
+    void loadModels(
+      vehicleType,
+      brandCode
+    );
   }, [
+    vehicleType,
+    brandCode,
+    loadModels,
+  ]);
+
+  useEffect(() => {
+    if (
+      !vehicleType ||
+      !brandCode ||
+      !modelCode
+    ) {
+      return;
+    }
+
+    void loadYears(
+      vehicleType,
+      brandCode,
+      modelCode
+    );
+  }, [
+    vehicleType,
     brandCode,
     modelCode,
     loadYears,
   ]);
 
   function handleBrand(
-    option: AutocompleteOption | null
+    option:
+      | AutocompleteOption
+      | null
   ) {
     if (!option) {
       onBrandChange("", "");
       onModelChange("", "");
       onYearChange("", "", "");
+
       return;
     }
 
@@ -117,11 +164,14 @@ export default function VehicleSelector({
   }
 
   function handleModel(
-    option: AutocompleteOption | null
+    option:
+      | AutocompleteOption
+      | null
   ) {
     if (!option) {
       onModelChange("", "");
       onYearChange("", "", "");
+
       return;
     }
 
@@ -134,10 +184,13 @@ export default function VehicleSelector({
   }
 
   function handleYear(
-    option: AutocompleteOption | null
+    option:
+      | AutocompleteOption
+      | null
   ) {
     if (!option) {
       onYearChange("", "", "");
+
       return;
     }
 
@@ -152,10 +205,15 @@ export default function VehicleSelector({
     <>
       <Autocomplete
         label="Marca"
-        placeholder="Digite ou selecione a marca..."
+        placeholder={
+          vehicleType
+            ? "Digite ou selecione a marca..."
+            : "Selecione primeiro o tipo de veículo"
+        }
         value={brandCode}
         options={brands}
         loading={loadingBrands}
+        disabled={!vehicleType}
         required
         error={brandsError}
         noOptionsMessage="Nenhuma marca encontrada."
@@ -172,7 +230,10 @@ export default function VehicleSelector({
         value={modelCode}
         options={models}
         loading={loadingModels}
-        disabled={!brandCode}
+        disabled={
+          !vehicleType ||
+          !brandCode
+        }
         required
         error={modelsError}
         noOptionsMessage="Nenhum modelo encontrado para esta marca."
@@ -189,7 +250,11 @@ export default function VehicleSelector({
         value={yearCode}
         options={years}
         loading={loadingYears}
-        disabled={!brandCode || !modelCode}
+        disabled={
+          !vehicleType ||
+          !brandCode ||
+          !modelCode
+        }
         required
         error={yearsError}
         noOptionsMessage="Nenhum ano ou versão encontrado para este modelo."

@@ -7,6 +7,22 @@ interface StepReviewProps {
   onEdit: (step: number) => void;
 }
 
+function formatVehicleType(vehicleType: string) {
+  if (vehicleType === "carros") {
+    return "Carro";
+  }
+
+  if (vehicleType === "motos") {
+    return "Moto";
+  }
+
+  if (vehicleType === "caminhoes") {
+    return "Caminhão";
+  }
+
+  return "";
+}
+
 export default function StepReview({
   onEdit,
 }: StepReviewProps) {
@@ -63,6 +79,13 @@ export default function StepReview({
           onEdit={() => onEdit(3)}
         >
           <SummaryField
+            label="Tipo de veículo"
+            value={formatVehicleType(
+              form.vehicleType
+            )}
+          />
+
+          <SummaryField
             label="Marca"
             value={form.vehicleBrand}
           />
@@ -96,10 +119,12 @@ export default function StepReview({
             value={form.vehicleGarage}
           />
 
-          <SummaryField
-            label="Uso por aplicativo"
-            value={form.vehicleApp}
-          />
+          {form.vehicleType !== "caminhoes" && (
+            <SummaryField
+              label="Uso por aplicativo"
+              value={form.vehicleApp}
+            />
+          )}
 
           <SummaryField
             label="Rastreador"

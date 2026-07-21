@@ -25,6 +25,27 @@ export default function StepVehicle() {
 
   const lastSearchedCep = useRef("");
 
+  function handleVehicleTypeChange(
+    value: string
+  ) {
+    updateFields({
+      vehicleType: value,
+
+      vehicleBrandCode: "",
+      vehicleBrand: "",
+
+      vehicleModelCode: "",
+      vehicleModel: "",
+
+      vehicleYearCode: "",
+      vehicleYear: "",
+
+      vehicleFuel: "",
+      vehicleFipeCode: "",
+      vehicleZeroKm: "",
+    });
+  }
+
   function handleBrandChange(
     code: string,
     name: string
@@ -119,8 +140,7 @@ export default function StepVehicle() {
       (addressData) => {
         updateFields({
           address: addressData.address,
-          district:
-            addressData.district,
+          district: addressData.district,
           city: addressData.city,
           state: addressData.state,
         });
@@ -131,9 +151,36 @@ export default function StepVehicle() {
   return (
     <StepLayout
       title="Dados do veículo"
-      subtitle="Selecione os dados do veículo e informe o endereço onde ele permanece durante a noite."
+      subtitle="Selecione o tipo e os dados do veículo e informe o endereço onde ele permanece durante a noite."
     >
+      <RadioGroup
+        label="Tipo de veículo"
+        value={form.vehicleType}
+        onChange={handleVehicleTypeChange}
+        options={[
+          {
+            label: "Carro",
+            value: "carros",
+          },
+          {
+            label: "Moto",
+            value: "motos",
+          },
+          {
+            label: "Caminhão",
+            value: "caminhoes",
+          },
+        ]}
+      />
+
       <VehicleSelector
+        vehicleType={
+          form.vehicleType as
+            | "carros"
+            | "motos"
+            | "caminhoes"
+            | ""
+        }
         brandCode={
           form.vehicleBrandCode
         }

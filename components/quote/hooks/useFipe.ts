@@ -2,13 +2,13 @@
 
 import {
   useCallback,
-  useEffect,
   useState,
 } from "react";
 
 import {
   FipeBrand,
   FipeModel,
+  FipeVehicleType,
   FipeYear,
   getBrands,
   getModels,
@@ -16,60 +16,87 @@ import {
 } from "../services/fipe";
 
 export function useFipe() {
-  const [brands, setBrands] = useState<FipeBrand[]>(
-    []
-  );
+  const [brands, setBrands] =
+    useState<FipeBrand[]>([]);
 
-  const [models, setModels] = useState<FipeModel[]>(
-    []
-  );
+  const [models, setModels] =
+    useState<FipeModel[]>([]);
 
-  const [years, setYears] = useState<FipeYear[]>(
-    []
-  );
+  const [years, setYears] =
+    useState<FipeYear[]>([]);
 
-  const [loadingBrands, setLoadingBrands] =
-    useState(false);
+  const [
+    loadingBrands,
+    setLoadingBrands,
+  ] = useState(false);
 
-  const [loadingModels, setLoadingModels] =
-    useState(false);
+  const [
+    loadingModels,
+    setLoadingModels,
+  ] = useState(false);
 
-  const [loadingYears, setLoadingYears] =
-    useState(false);
+  const [
+    loadingYears,
+    setLoadingYears,
+  ] = useState(false);
 
-  const [brandsError, setBrandsError] =
-    useState("");
+  const [
+    brandsError,
+    setBrandsError,
+  ] = useState("");
 
-  const [modelsError, setModelsError] =
-    useState("");
+  const [
+    modelsError,
+    setModelsError,
+  ] = useState("");
 
-  const [yearsError, setYearsError] =
-    useState("");
+  const [
+    yearsError,
+    setYearsError,
+  ] = useState("");
 
-  const loadBrands = useCallback(async () => {
-    setLoadingBrands(true);
-    setBrandsError("");
-
-    try {
-      const data = await getBrands();
-      setBrands(data);
-    } catch (error) {
+  const loadBrands = useCallback(
+    async (
+      vehicleType: FipeVehicleType
+    ) => {
       setBrands([]);
-
-      setBrandsError(
-        error instanceof Error
-          ? error.message
-          : "Erro ao carregar as marcas."
-      );
-    } finally {
-      setLoadingBrands(false);
-    }
-  }, []);
-
-  const loadModels = useCallback(
-    async (brandCode: string) => {
       setModels([]);
       setYears([]);
+
+      setBrandsError("");
+      setModelsError("");
+      setYearsError("");
+
+      setLoadingBrands(true);
+
+      try {
+        const data =
+          await getBrands(vehicleType);
+
+        setBrands(data);
+      } catch (error) {
+        setBrands([]);
+
+        setBrandsError(
+          error instanceof Error
+            ? error.message
+            : "Erro ao carregar as marcas."
+        );
+      } finally {
+        setLoadingBrands(false);
+      }
+    },
+    []
+  );
+
+  const loadModels = useCallback(
+    async (
+      vehicleType: FipeVehicleType,
+      brandCode: string
+    ) => {
+      setModels([]);
+      setYears([]);
+
       setModelsError("");
       setYearsError("");
 
@@ -80,7 +107,11 @@ export function useFipe() {
       setLoadingModels(true);
 
       try {
-        const data = await getModels(brandCode);
+        const data = await getModels(
+          vehicleType,
+          brandCode
+        );
+
         setModels(data);
       } catch (error) {
         setModels([]);
@@ -99,6 +130,7 @@ export function useFipe() {
 
   const loadYears = useCallback(
     async (
+      vehicleType: FipeVehicleType,
       brandCode: string,
       modelCode: string
     ) => {
@@ -113,6 +145,7 @@ export function useFipe() {
 
       try {
         const data = await getYears(
+          vehicleType,
           brandCode,
           modelCode
         );
@@ -132,10 +165,6 @@ export function useFipe() {
     },
     []
   );
-
-  useEffect(() => {
-    void loadBrands();
-  }, [loadBrands]);
 
   return {
     brands,

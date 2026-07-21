@@ -51,6 +51,10 @@ export default function QuoteWizard() {
 
   const goToStepRef = useRef(goToStep);
 
+  // Impede a rolagem automática
+  // quando o site é aberto pela primeira vez.
+  const isFirstRender = useRef(true);
+
   useEffect(() => {
     goToStepRef.current = goToStep;
   }, [goToStep]);
@@ -86,6 +90,27 @@ export default function QuoteWizard() {
       );
     };
   }, [updateInsurance]);
+
+  // Rola para o início da cotação
+  // somente depois que a etapa mudar.
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const section =
+      document.getElementById("cotacao");
+
+    if (!section) {
+      return;
+    }
+
+    section.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [step]);
 
   function sendQuote() {
     const message =

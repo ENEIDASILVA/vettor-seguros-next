@@ -21,6 +21,7 @@ const initialForm: QuoteFormData = {
   city: "",
   state: "",
 
+  vehicleType:"",
   vehicleBrandCode: "",
   vehicleBrand: "",
   vehicleModelCode: "",

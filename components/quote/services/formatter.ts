@@ -6,6 +6,22 @@ function value(text: string) {
     : "Não informado";
 }
 
+function formatVehicleType(vehicleType: string) {
+  if (vehicleType === "carros") {
+    return "Carro";
+  }
+
+  if (vehicleType === "motos") {
+    return "Moto";
+  }
+
+  if (vehicleType === "caminhoes") {
+    return "Caminhão";
+  }
+
+  return "Não informado";
+}
+
 function formatCoverages(form: QuoteFormData) {
   if (form.coverages.length === 0) {
     return "Não informado";
@@ -77,6 +93,7 @@ function formatAutoMessage(form: QuoteFormData) {
     "CPF: " + value(form.cpf),
     "",
     "🚘 VEÍCULO",
+    "Tipo: " + formatVehicleType(form.vehicleType),
     "Marca: " + value(form.vehicleBrand),
     "Modelo: " + value(form.vehicleModel),
     "Ano / Versão: " + value(form.vehicleYear)
@@ -95,8 +112,17 @@ function formatAutoMessage(form: QuoteFormData) {
   }
 
   lines.push(
-    "Garagem: " + value(form.vehicleGarage),
-    "Uso por aplicativo: " + value(form.vehicleApp),
+    "Garagem: " + value(form.vehicleGarage)
+  );
+
+  if (form.vehicleType !== "caminhoes") {
+    lines.push(
+      "Uso por aplicativo: " +
+        value(form.vehicleApp)
+    );
+  }
+
+  lines.push(
     "Rastreador: " + value(form.vehicleTracker),
     "",
     "📍 ENDEREÇO DE PERNOITE",

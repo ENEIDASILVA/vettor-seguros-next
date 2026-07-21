@@ -12,16 +12,31 @@ export default function Hero() {
       className="bg-[#061B3A] pt-[72px]"
     >
       <div className="relative w-full overflow-hidden">
-        <Image
-          src="/Images/hero/hero-vettor.png"
-          alt="Vettor Seguros - Proteção inteligente"
-          width={1920}
-          height={1080}
-          priority
-          unoptimized
-          sizes="100vw"
-          className="block h-auto w-full"
-        />
+        <div className="block sm:hidden">
+          <Image
+            src="/Images/hero/hero-vettor-mobile.png"
+            alt="Vettor Seguros - Proteção inteligente"
+            width={1024}
+            height={1536}
+            priority
+            unoptimized
+            sizes="100vw"
+            className="block h-auto w-full"
+          />
+        </div>
+
+        <div className="hidden sm:block">
+          <Image
+            src="/Images/hero/hero-vettor.png"
+            alt="Vettor Seguros - Proteção inteligente"
+            width={1920}
+            height={1080}
+            priority
+            unoptimized
+            sizes="100vw"
+            className="block h-auto w-full"
+          />
+        </div>
       </div>
 
       <div className="border-t border-white/10 bg-[#061B3A] px-4 py-6 sm:px-6 sm:py-7">

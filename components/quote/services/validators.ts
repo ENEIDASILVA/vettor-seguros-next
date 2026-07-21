@@ -27,12 +27,10 @@ export function canProceed(
   step: number,
   form: QuoteFormData
 ) {
-  // Etapa 1 — Tipo de seguro
   if (step === 1) {
     return form.insuranceType !== "";
   }
 
-  // Etapa 2 — Dados pessoais
   if (step === 2) {
     return (
       form.name.trim() !== "" &&
@@ -42,10 +40,10 @@ export function canProceed(
     );
   }
 
-  // Seguro Auto
   if (form.insuranceType === "Seguro Auto") {
     if (step === 3) {
       return (
+        form.vehicleType.trim() !== "" &&
         form.vehicleBrand.trim() !== "" &&
         form.vehicleModel.trim() !== "" &&
         form.vehicleYear.trim() !== "" &&
@@ -66,9 +64,7 @@ export function canProceed(
     }
   }
 
-  // Seguro Residencial
   if (form.insuranceType === "Seguro Residencial") {
-    // Etapa 3 — Dados do imóvel
     if (step === 3) {
       return (
         isValidCep(form.propertyCep) &&
@@ -84,7 +80,6 @@ export function canProceed(
       );
     }
 
-    // Etapa 4 — Perfil do imóvel
     if (step === 4) {
       return (
         form.propertyUse.trim() !== "" &&
@@ -94,13 +89,11 @@ export function canProceed(
       );
     }
 
-    // Etapa 5 — Coberturas
     if (step === 5) {
       return form.coverages.length > 0;
     }
   }
 
-  // Seguro de Vida
   if (form.insuranceType === "Seguro de Vida") {
     if (step === 3) {
       return (

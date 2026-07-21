@@ -31,6 +31,8 @@ export interface QuoteFormData {
   state: string;
 
   // Veículo
+  vehicleType: string;
+
   vehicleBrandCode: string;
   vehicleBrand: string;
 

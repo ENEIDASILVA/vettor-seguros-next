@@ -1,3 +1,8 @@
+export type FipeVehicleType =
+  | "carros"
+  | "motos"
+  | "caminhoes";
+
 export interface FipeBrand {
   value: string;
   label: string;
@@ -36,14 +41,23 @@ function normalizeYearLabel(label: string) {
   const trimmedLabel = label.trim();
 
   if (trimmedLabel.startsWith("32000 ")) {
-    return "Zero KM " + trimmedLabel.substring(6);
+    return (
+      "Zero KM " +
+      trimmedLabel.substring(6)
+    );
   }
 
   return trimmedLabel;
 }
 
-export async function getBrands(): Promise<FipeBrand[]> {
-  const response = await fetch("/api/fipe/brands");
+export async function getBrands(
+  vehicleType: FipeVehicleType
+): Promise<FipeBrand[]> {
+  const url =
+    "/api/fipe/brands?type=" +
+    encodeURIComponent(vehicleType);
+
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error(
@@ -68,6 +82,7 @@ export async function getBrands(): Promise<FipeBrand[]> {
 }
 
 export async function getModels(
+  vehicleType: FipeVehicleType,
   brandCode: string
 ): Promise<FipeModel[]> {
   if (!brandCode) {
@@ -75,7 +90,9 @@ export async function getModels(
   }
 
   const url =
-    "/api/fipe/models?brand=" +
+    "/api/fipe/models?type=" +
+    encodeURIComponent(vehicleType) +
+    "&brand=" +
     encodeURIComponent(brandCode);
 
   const response = await fetch(url);
@@ -103,6 +120,7 @@ export async function getModels(
 }
 
 export async function getYears(
+  vehicleType: FipeVehicleType,
   brandCode: string,
   modelCode: string
 ): Promise<FipeYear[]> {
@@ -111,7 +129,9 @@ export async function getYears(
   }
 
   const url =
-    "/api/fipe/years?brand=" +
+    "/api/fipe/years?type=" +
+    encodeURIComponent(vehicleType) +
+    "&brand=" +
     encodeURIComponent(brandCode) +
     "&model=" +
     encodeURIComponent(modelCode);
