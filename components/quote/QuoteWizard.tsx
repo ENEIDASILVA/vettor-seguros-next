@@ -94,14 +94,37 @@ section.scrollIntoView({
   block: "start",
 });
   }, [step]);
-  function sendQuote() {
-    const message =
-      formatWhatsAppMessage(form);
-const link =
-  createWhatsAppLink(message);
+  async function sendQuote() {
+  try {
+    const response = await fetch("/api/cotacoes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
 
-window.open(link, "_blank");
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(
+        result.error ??
+          "Não foi possível registrar sua cotação."
+      );
+    }
+
+    const message = formatWhatsAppMessage(form);
+    const link = createWhatsAppLink(message);
+
+    window.open(link, "_blank");
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      "Não foi possível enviar sua cotação neste momento. Tente novamente em alguns instantes."
+    );
   }
+}
   const canGoNext =
     canProceed(step, form);
   return (

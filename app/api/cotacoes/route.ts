@@ -198,31 +198,7 @@ export async function POST(request: Request) {
         clientByCpf?.id ?? null;
     }
 
-    /*
-     * Se não encontrou pelo CPF,
-     * procura pelo telefone.
-     */
-    if (!clientId) {
-      const {
-        data: clientByPhone,
-        error: clientByPhoneError,
-      } = await supabase
-        .from("clientes")
-        .select("id")
-        .eq(
-          "telefone",
-          normalizedPhone
-        )
-        .limit(1)
-        .maybeSingle();
-
-      if (clientByPhoneError) {
-        throw clientByPhoneError;
-      }
-
-      clientId =
-        clientByPhone?.id ?? null;
-    }
+    
 
     /*
      * Atualiza o cliente existente

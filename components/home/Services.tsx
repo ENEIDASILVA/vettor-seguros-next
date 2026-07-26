@@ -63,6 +63,8 @@ export default function Services() {
 function startOnlineQuote(
   insuranceType: string
 ) {
+  const section = document.getElementById("cotacao");
+
   window.dispatchEvent(
     new CustomEvent("vettor:start-quote", {
       detail: {
@@ -71,12 +73,10 @@ function startOnlineQuote(
     })
   );
 
-  document
-    .getElementById("cotacao")
-    ?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+  section?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
 }
 
   function openWhatsApp(
