@@ -3,13 +3,8 @@ import SectionTitle from "../ui/SectionTitle";
 import Card from "../ui/Card";
 
 const partners = [
-  "Porto",
+  "Porto Seguro",
   "Tokio Marine",
-  "HDI",
-  "Mapfre",
-  "Allianz",
-  "Bradesco Seguros",
-  "Liberty",
   "Suhai",
 ];
 
