@@ -60,24 +60,24 @@ const services = [
 ];
 
 export default function Services() {
-  function startOnlineQuote(
-    insuranceType: string
-  ) {
-    window.dispatchEvent(
-      new CustomEvent("vettor:start-quote", {
-        detail: {
-          insuranceType,
-        },
-      })
-    );
+function startOnlineQuote(
+  insuranceType: string
+) {
+  window.dispatchEvent(
+    new CustomEvent("vettor:start-quote", {
+      detail: {
+        insuranceType,
+      },
+    })
+  );
 
-    document
-      .getElementById("cotacao")
-      ?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-  }
+  document
+    .getElementById("cotacao")
+    ?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+}
 
   function openWhatsApp(
     insuranceType: string
