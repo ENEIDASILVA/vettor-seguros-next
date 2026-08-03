@@ -6,6 +6,8 @@ const partners = [
   "Porto Seguro",
   "Tokio Marine",
   "Suhai",
+  "Mapfre",
+  "Yelum",
 ];
 
 export default function Partners() {

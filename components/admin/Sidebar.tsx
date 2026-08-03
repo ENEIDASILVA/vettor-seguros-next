@@ -3,14 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
-  Users,
-  ClipboardList,
-  FileText,
   BarChart3,
+  ClipboardList,
+  FileCheck2,
+  FileText,
+  LayoutDashboard,
   Settings,
-  LogOut,
+  Users,
 } from "lucide-react";
+
+import LogoutButton from "./LogoutButton";
 
 const menu = [
   {
@@ -27,6 +29,11 @@ const menu = [
     href: "/admin/cotacoes",
     label: "Cotações",
     icon: ClipboardList,
+  },
+  {
+    href: "/admin/apolices",
+    label: "Apólices",
+    icon: FileCheck2,
   },
   {
     href: "/admin/propostas",
@@ -49,7 +56,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-72 flex-col bg-[#0A2F5A] text-white">
+    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col bg-[#0A2F5A] text-white">
       <div className="border-b border-white/10 px-8 py-8">
         <h1 className="text-2xl font-bold">
           VETTOR
@@ -66,7 +73,8 @@ export default function Sidebar() {
             const Icon = item.icon;
 
             const active =
-              pathname === item.href;
+              pathname === item.href ||
+              pathname.startsWith(`${item.href}/`);
 
             return (
               <li key={item.href}>
@@ -74,7 +82,7 @@ export default function Sidebar() {
                   href={item.href}
                   className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
                     active
-                      ? "bg-[#C9A227] text-[#0A2F5A] font-semibold"
+                      ? "bg-[#C9A227] font-semibold text-[#0A2F5A]"
                       : "hover:bg-white/10"
                   }`}
                 >
@@ -89,11 +97,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="border-t border-white/10 p-4">
-        <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 transition hover:bg-red-500">
-          <LogOut size={20} />
-
-          <span>Sair</span>
-        </button>
+        <LogoutButton />
       </div>
     </aside>
   );

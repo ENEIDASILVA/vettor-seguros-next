@@ -107,6 +107,14 @@ export default function StepReview({
             />
           )}
 
+          <SummaryField
+            label="Placa"
+            value={
+              form.vehiclePlate || "-"
+            }
+          />
+
+
           {form.vehicleFipeCode.trim() !== "" && (
             <SummaryField
               label="Código FIPE"

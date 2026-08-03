@@ -42,12 +42,17 @@ export function canProceed(
 
   if (form.insuranceType === "Seguro Auto") {
     if (step === 3) {
-      return (
-        form.vehicleType.trim() !== "" &&
-        form.vehicleBrand.trim() !== "" &&
-        form.vehicleModel.trim() !== "" &&
-        form.vehicleYear.trim() !== "" &&
-        isValidCep(form.vehicleCep)
+      const placaValida =
+        /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/.test(
+          form.vehiclePlate ?? "",
+        );
+
+      return Boolean(
+        form.vehicleBrand &&
+        form.vehicleModel &&
+        form.vehicleYear &&
+        placaValida &&
+        form.vehicleCep
       );
     }
 

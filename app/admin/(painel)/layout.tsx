@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 
 import { createClient } from "@/lib/supabase/server";
-
 import Sidebar from "@/components/admin/Sidebar";
 
 type AdminLayoutProps = {
@@ -26,7 +25,7 @@ export default async function AdminLayout({
     <div className="flex min-h-screen bg-slate-100">
       <Sidebar />
 
-      <main className="flex-1 overflow-auto p-8">
+      <main className="min-w-0 flex-1 overflow-auto p-4 sm:p-8">
         {children}
       </main>
     </div>

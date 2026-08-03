@@ -41,6 +41,7 @@ export interface QuoteFormData {
 
   vehicleYearCode: string;
   vehicleYear: string;
+  vehiclePlate: string;
 
   vehicleFuel: string;
   vehicleFipeCode: string;

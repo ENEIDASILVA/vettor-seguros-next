@@ -2,264 +2,140 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 
-type RelatedName =
-  | {
-      nome: string | null;
-    }
-  | Array<{
-      nome: string | null;
-    }>
-  | null;
-
-type LatestQuoteRow = {
-  id: string;
-  created_at: string;
-  clientes: RelatedName;
-  tipos_seguro: RelatedName;
-  status_cotacao: RelatedName;
+export type DashboardIndicadores = {
+  clientes: number;
+  cotacoes: number;
+  emCotacao: number;
+  fechadas: number;
 };
 
-export type LatestQuote = {
+export type DashboardUltimaCotacao = {
   id: string;
-  clientName: string;
-  insuranceType: string;
+  cliente: string;
+  tipoSeguro: string;
   status: string;
-  createdAt: string;
+  created_at: string;
+};
+
+export type DashboardUltimoCliente = {
+  id: string;
+  nome: string;
+  telefone: string | null;
+  cidade: string | null;
+  created_at: string;
+};
+
+export type DashboardRenovacao = {
+  id: string;
+  cliente: string;
+  seguradora: string;
+  tipoSeguro: string;
+  vencimento: string;
+  diasRestantes: number;
 };
 
 export type DashboardData = {
-  totalClients: number;
-  totalQuotes: number;
-  quotesToday: number;
-  quotesThisMonth: number;
-  inProgressQuotes: number;
-  closedQuotes: number;
-  latestQuotes: LatestQuote[];
+  indicadores: DashboardIndicadores;
+  ultimasCotacoes: DashboardUltimaCotacao[];
+  ultimosClientes: DashboardUltimoCliente[];
+  tarefas: [];
+  renovacoes: DashboardRenovacao[];
 };
 
-function getRelatedName(
-  relation: RelatedName,
-  fallback: string
-): string {
-  if (Array.isArray(relation)) {
-    return relation[0]?.nome || fallback;
-  }
 
-  return relation?.nome || fallback;
-}
+async function buscarRenovacoesProximas(): Promise<
+  DashboardRenovacao[]
+> {
+  const supabase = await createClient();
 
-function getSaoPauloDateParts(date: Date) {
-  const formatter = new Intl.DateTimeFormat(
-    "en-CA",
-    {
-      timeZone: "America/Sao_Paulo",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }
+  const hoje = new Date();
+
+  const limite = new Date();
+
+  limite.setDate(
+    limite.getDate() + 30,
   );
 
-  const parts = formatter.formatToParts(date);
 
-  const year = Number(
-    parts.find(
-      (part) => part.type === "year"
-    )?.value
-  );
-
-  const month = Number(
-    parts.find(
-      (part) => part.type === "month"
-    )?.value
-  );
-
-  const day = Number(
-    parts.find(
-      (part) => part.type === "day"
-    )?.value
-  );
-
-  return {
-    year,
-    month,
-    day,
-  };
-}
-
-/*
- * Minas Gerais utiliza o horário de Brasília.
- * Meia-noite em São Paulo corresponde atualmente
- * a 03:00 UTC.
- */
-function createSaoPauloMidnightUtc(
-  year: number,
-  month: number,
-  day: number
-) {
-  return new Date(
-    Date.UTC(
-      year,
-      month - 1,
-      day,
-      3,
-      0,
-      0,
-      0
+  const { data, error } = await supabase
+    .from("apolices")
+    .select(`
+      id,
+      fim_vigencia,
+      cliente:clientes(nome),
+      seguradora:seguradoras(nome),
+      tipo_seguro:tipos_seguro(nome)
+    `)
+    .gte(
+      "fim_vigencia",
+      hoje.toISOString().split("T")[0],
     )
-  );
-}
-
-function getDateRanges() {
-  const now = new Date();
-
-  const {
-    year,
-    month,
-    day,
-  } = getSaoPauloDateParts(now);
-
-  const todayStart =
-    createSaoPauloMidnightUtc(
-      year,
-      month,
-      day
-    );
-
-  const tomorrowStart =
-    createSaoPauloMidnightUtc(
-      year,
-      month,
-      day + 1
-    );
-
-  const monthStart =
-    createSaoPauloMidnightUtc(
-      year,
-      month,
-      1
-    );
-
-  const nextMonthStart =
-    createSaoPauloMidnightUtc(
-      year,
-      month + 1,
-      1
-    );
-
-  return {
-    todayStart:
-      todayStart.toISOString(),
-
-    tomorrowStart:
-      tomorrowStart.toISOString(),
-
-    monthStart:
-      monthStart.toISOString(),
-
-    nextMonthStart:
-      nextMonthStart.toISOString(),
-  };
-}
-
-async function getStatusIds(
-  statusNames: string[]
-): Promise<string[]> {
-  const supabase =
-    await createClient();
-
-  const {
-    data,
-    error,
-  } = await supabase
-    .from("status_cotacao")
-    .select("id, nome")
-    .in("nome", statusNames);
-
-  if (error) {
-    throw new Error(
-      `Erro ao consultar status: ${error.message}`
-    );
-  }
-
-  return (
-    data?.map((status) => status.id) ?? []
-  );
-}
-
-async function countQuotesByStatusIds(
-  statusIds: string[]
-): Promise<number> {
-  if (statusIds.length === 0) {
-    return 0;
-  }
-
-  const supabase =
-    await createClient();
-
-  const {
-    count,
-    error,
-  } = await supabase
-    .from("cotacoes")
-    .select("id", {
-      count: "exact",
-      head: true,
+    .lte(
+      "fim_vigencia",
+      limite.toISOString().split("T")[0],
+    )
+    .order("fim_vigencia", {
+      ascending: true,
     })
-    .in("status_id", statusIds);
+    .limit(5);
+
 
   if (error) {
-    throw new Error(
-      `Erro ao contar cotações: ${error.message}`
+    console.error(
+      "Erro renovacoes:",
+      error,
     );
+
+    return [];
   }
 
-  return count ?? 0;
+
+  return (data ?? []).map((item: any) => {
+
+    const vencimento =
+      new Date(item.fim_vigencia);
+
+
+    const diasRestantes =
+      Math.ceil(
+        (
+          vencimento.getTime() -
+          hoje.getTime()
+        ) /
+        (1000 * 60 * 60 * 24),
+      );
+
+
+    return {
+      id: item.id,
+
+      cliente:
+        item.cliente?.nome ?? "-",
+
+      seguradora:
+        item.seguradora?.nome ?? "-",
+
+      tipoSeguro:
+        item.tipo_seguro?.nome ?? "-",
+
+      vencimento:
+        item.fim_vigencia,
+
+      diasRestantes,
+    };
+  });
 }
 
-export async function getDashboardData():
-Promise<DashboardData> {
-  const supabase =
-    await createClient();
 
-  const {
-    todayStart,
-    tomorrowStart,
-    monthStart,
-    nextMonthStart,
-  } = getDateRanges();
+export async function obterDashboardData(): Promise<DashboardData> {
 
-  const inProgressStatusNames = [
-    "Em atendimento",
-    "Em Atendimento",
-    "Em cotação",
-    "Em Cotação",
-    "Proposta enviada",
-    "Proposta Enviada",
-    "Negociação",
-  ];
+  const supabase = await createClient();
 
-  const closedStatusNames = [
-    "Fechada",
-    "Fechado",
-    "Concluída",
-    "Concluído",
-  ];
 
   const [
-    totalClientsResult,
-    totalQuotesResult,
-    quotesTodayResult,
-    quotesThisMonthResult,
-    latestQuotesResult,
-    inProgressStatusIds,
-    closedStatusIds,
+    cotacoesResponse,
+    renovacoes,
   ] = await Promise.all([
-    supabase
-      .from("clientes")
-      .select("id", {
-        count: "exact",
-        head: true,
-      }),
 
     supabase
       .from("cotacoes")
@@ -268,144 +144,49 @@ Promise<DashboardData> {
         head: true,
       }),
 
-    supabase
-      .from("cotacoes")
-      .select("id", {
-        count: "exact",
-        head: true,
-      })
-      .gte(
-        "created_at",
-        todayStart
-      )
-      .lt(
-        "created_at",
-        tomorrowStart
-      ),
+    buscarRenovacoesProximas(),
 
-    supabase
-      .from("cotacoes")
-      .select("id", {
-        count: "exact",
-        head: true,
-      })
-      .gte(
-        "created_at",
-        monthStart
-      )
-      .lt(
-        "created_at",
-        nextMonthStart
-      ),
-
-    supabase
-      .from("cotacoes")
-      .select(`
-        id,
-        created_at,
-        clientes (
-          nome
-        ),
-        tipos_seguro (
-          nome
-        ),
-        status_cotacao (
-          nome
-        )
-      `)
-      .order(
-        "created_at",
-        {
-          ascending: false,
-        }
-      )
-      .limit(10),
-
-    getStatusIds(
-      inProgressStatusNames
-    ),
-
-    getStatusIds(
-      closedStatusNames
-    ),
   ]);
 
-  const queryErrors = [
-    totalClientsResult.error,
-    totalQuotesResult.error,
-    quotesTodayResult.error,
-    quotesThisMonthResult.error,
-    latestQuotesResult.error,
-  ].filter(Boolean);
+ 
+if (cotacoesResponse.error) {
+  console.error(
+    "Erro Dashboard  Cotações:",
+    cotacoesResponse.error,
+  );
 
-  if (queryErrors.length > 0) {
-    const messages = queryErrors
-      .map((error) => error?.message)
-      .join(" | ");
-
-    throw new Error(
-      `Erro ao carregar o dashboard: ${messages}`
-    );
-  }
-
-  const [
-    inProgressQuotes,
-    closedQuotes,
-  ] = await Promise.all([
-    countQuotesByStatusIds(
-      inProgressStatusIds
-    ),
-
-    countQuotesByStatusIds(
-      closedStatusIds
-    ),
-  ]);
-
-  const latestRows =
-    (latestQuotesResult.data ??
-      []) as LatestQuoteRow[];
-
-  const latestQuotes =
-    latestRows.map((quote) => ({
-      id: quote.id,
-
-      clientName:
-        getRelatedName(
-          quote.clientes,
-          "Cliente não identificado"
-        ),
-
-      insuranceType:
-        getRelatedName(
-          quote.tipos_seguro,
-          "Seguro não informado"
-        ),
-
-      status:
-        getRelatedName(
-          quote.status_cotacao,
-          "Sem status"
-        ),
-
-      createdAt:
-        quote.created_at,
-    }));
+  throw new Error(
+    cotacoesResponse.error.message,
+  );
+}
 
   return {
-    totalClients:
-      totalClientsResult.count ?? 0,
 
-    totalQuotes:
-      totalQuotesResult.count ?? 0,
+    indicadores: {
 
-    quotesToday:
-      quotesTodayResult.count ?? 0,
+      clientes: 0,
 
-    quotesThisMonth:
-      quotesThisMonthResult.count ?? 0,
+      cotacoes:
+        cotacoesResponse.count ?? 0,
 
-    inProgressQuotes,
-    closedQuotes,
-    latestQuotes,
+      emCotacao: 0,
+
+      fechadas: 0,
+
+    },
+
+
+    ultimasCotacoes: [],
+
+
+    ultimosClientes: [],
+
+
+    tarefas: [],
+
+
+    renovacoes,
+
   };
+
 }

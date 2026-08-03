@@ -28,6 +28,7 @@ const initialForm: QuoteFormData = {
   vehicleModel: "",
   vehicleYearCode: "",
   vehicleYear: "",
+  vehiclePlate: "",
   vehicleFuel: "",
   vehicleFipeCode: "",
   vehicleZeroKm: "",

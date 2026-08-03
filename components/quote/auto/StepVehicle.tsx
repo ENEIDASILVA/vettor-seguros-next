@@ -213,6 +213,46 @@ export default function StepVehicle() {
         </div>
       )}
 
+      <div>
+  <label className="mb-2 block font-medium text-slate-700">
+    Placa
+  </label>
+
+  <input
+    type="text"
+    inputMode="text"
+    maxLength={7}
+    value={form.vehiclePlate ?? ""}
+    onChange={(event) => {
+      const valor = event.target.value
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "")
+        .slice(0, 7);
+
+      updateField(
+        "vehiclePlate",
+        valor,
+      );
+    }}
+    placeholder="ABC1D23"
+    className="
+      w-full
+      rounded-xl
+      border
+      border-slate-300
+      bg-white
+      p-3
+      text-slate-900
+      outline-none
+      transition
+      focus:border-[#0A2F5A]
+      focus:ring-4
+      focus:ring-[#0A2F5A]/10
+    "
+  />
+</div>
+
+
       <Input
         label="CEP de pernoite"
         value={form.vehicleCep}
