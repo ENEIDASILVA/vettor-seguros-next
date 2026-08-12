@@ -1,14 +1,12 @@
 import BasePage from "@/components/admin/common/BasePage";
-import Link from "next/link";
 import PropostaTable from "@/components/admin/propostas/PropostaTable";
 
 import {
   obterPropostas,
 } from "@/lib/services/propostasService";
 
-
-export const dynamic = "force-dynamic";
-
+export const dynamic =
+  "force-dynamic";
 
 type Props = {
   searchParams: Promise<{
@@ -18,68 +16,84 @@ type Props = {
   }>;
 };
 
-
 export default async function PropostasPage({
   searchParams,
 }: Props) {
-
-  const params = await searchParams;
+  const params =
+    await searchParams;
 
   const propostas =
     await obterPropostas();
 
-
   return (
     <BasePage
-  title="Propostas"
-  description="Gerenciamento das propostas comerciais."
->
-
-  <div className="mb-6 flex justify-end">
-
-    <Link
-      href="/admin/propostas/nova"
-      className="
-        rounded-xl
-        bg-[#0A2F5A]
-        px-6
-        py-3
-        font-semibold
-        text-white
-        transition
-        hover:bg-[#082648]
-      "
+      title="Propostas"
+      description="Gerenciamento das propostas comerciais."
     >
-      + Nova Proposta
-    </Link>
+      <div className="space-y-6">
 
-  </div>
+        {(params.sucesso === "1" ||
+          params.atualizado === "1" ||
+          params.excluido === "1") && (
+          <div
+            className={`
+              rounded-xl
+              border
+              px-5
+              py-4
+              font-medium
+              ${
+                params.sucesso === "1"
+                  ? "border-green-200 bg-green-50 text-green-700"
+                  : params.atualizado === "1"
+                    ? "border-blue-200 bg-blue-50 text-blue-700"
+                    : "border-red-200 bg-red-50 text-red-700"
+              }
+            `}
+          >
+            {params.sucesso === "1" &&
+              "✅ Proposta criada com sucesso."}
 
-      {params.sucesso === "1" && (
-        <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-5 py-4 font-medium text-green-700">
-          ✅ Proposta cadastrada com sucesso!
+            {params.atualizado === "1" &&
+              "✅ Proposta atualizada com sucesso."}
+
+            {params.excluido === "1" &&
+              "🗑️ Proposta excluída com sucesso."}
+          </div>
+        )}
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+
+          <div className="flex items-center justify-between">
+
+            <div>
+
+              <h2 className="text-xl font-bold text-slate-800">
+                Propostas Comerciais
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Acompanhe as propostas enviadas aos clientes.
+              </p>
+
+            </div>
+
+            <div className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+              {propostas.length} proposta
+              {propostas.length !== 1
+                ? "s"
+                : ""}
+            </div>
+
+          </div>
+
         </div>
-      )}
 
+        <PropostaTable
+          propostas={propostas}
+        />
 
-      {params.atualizado === "1" && (
-        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-5 py-4 font-medium text-blue-700">
-          ✅ Proposta atualizada com sucesso!
-        </div>
-      )}
-
-
-      {params.excluido === "1" && (
-        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-5 py-4 font-medium text-red-700">
-          🗑️ Proposta excluída com sucesso!
-        </div>
-      )}
-
-
-      <PropostaTable
-        propostas={propostas}
-      />
-
+      </div>
     </BasePage>
   );
 }

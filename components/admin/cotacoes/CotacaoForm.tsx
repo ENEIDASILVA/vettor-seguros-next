@@ -5,7 +5,10 @@ import { useState, useTransition } from "react";
 import FormActions from "@/components/admin/common/FormActions";
 import FormField from "@/components/admin/common/FormField";
 
-import { criarCotacaoAction } from "@/app/admin/actions/cotacoes";
+import {
+  criarCotacaoAction,
+  editarCotacaoAction,
+} from "@/app/admin/actions/cotacoes";
 
 import type {
   CotacaoCliente,
@@ -16,6 +19,10 @@ import type {
 type Props = {
   clientes: CotacaoCliente[];
   tiposSeguro: CotacaoTipoSeguro[];
+
+  cotacao?: NovaCotacao;
+
+  cotacaoId?: string;
 };
 
 const ORIGENS = [
@@ -32,21 +39,29 @@ const ORIGENS = [
 export default function CotacaoForm({
   clientes,
   tiposSeguro,
+  cotacao,
+  cotacaoId,
 }: Props) {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] =
+    useTransition();
 
-  const [form, setForm] = useState<NovaCotacao>({
-    cliente_id: "",
-    tipo_seguro_id: 0,
-    status_id: 1,
-    origem: "Site",
-    observacoes: "",
-    dados: {},
-  });
+  const [form, setForm] =
+    useState<NovaCotacao>(
+      cotacao ?? {
+        cliente_id: "",
+        tipo_seguro_id: 0,
+        status_id: 1,
+        origem: "Site",
+        observacoes: "",
+        dados: {},
+      },
+    );
 
-  function atualizar<K extends keyof NovaCotacao>(
+  function atualizar<
+    K extends keyof NovaCotacao,
+  >(
     campo: K,
-    valor: NovaCotacao[K]
+    valor: NovaCotacao[K],
   ) {
     setForm((old) => ({
       ...old,
@@ -54,11 +69,22 @@ export default function CotacaoForm({
     }));
   }
 
-  function onSubmit(e: React.FormEvent) {
+  function onSubmit(
+    e: React.FormEvent,
+  ) {
     e.preventDefault();
 
     startTransition(async () => {
-      await criarCotacaoAction(form);
+      if (cotacaoId) {
+        await editarCotacaoAction(
+          cotacaoId,
+          form,
+        );
+      } else {
+        await criarCotacaoAction(
+          form,
+        );
+      }
     });
   }
 
@@ -74,7 +100,10 @@ export default function CotacaoForm({
         <select
           value={form.cliente_id}
           onChange={(e) =>
-            atualizar("cliente_id", e.target.value)
+            atualizar(
+              "cliente_id",
+              e.target.value,
+            )
           }
           className="w-full rounded-xl border border-slate-300 px-4 py-3"
           required
@@ -103,7 +132,7 @@ export default function CotacaoForm({
           onChange={(e) =>
             atualizar(
               "tipo_seguro_id",
-              Number(e.target.value)
+              Number(e.target.value),
             )
           }
           className="w-full rounded-xl border border-slate-300 px-4 py-3"
@@ -131,7 +160,10 @@ export default function CotacaoForm({
         <select
           value={form.origem ?? ""}
           onChange={(e) =>
-            atualizar("origem", e.target.value)
+            atualizar(
+              "origem",
+              e.target.value,
+            )
           }
           className="w-full rounded-xl border border-slate-300 px-4 py-3"
         >
@@ -149,11 +181,13 @@ export default function CotacaoForm({
       <FormField label="Observações">
         <textarea
           rows={5}
-          value={form.observacoes ?? ""}
+          value={
+            form.observacoes ?? ""
+          }
           onChange={(e) =>
             atualizar(
               "observacoes",
-              e.target.value
+              e.target.value,
             )
           }
           className="w-full rounded-xl border border-slate-300 px-4 py-3"
@@ -162,8 +196,16 @@ export default function CotacaoForm({
 
       <FormActions
         cancelHref="/admin/cotacoes"
-        submitLabel="Criar Cotação"
-        submittingLabel="Criando..."
+        submitLabel={
+          cotacaoId
+            ? "Salvar Alterações"
+            : "Criar Cotação"
+        }
+        submittingLabel={
+          cotacaoId
+            ? "Salvando..."
+            : "Criando..."
+        }
         isSubmitting={isPending}
       />
     </form>

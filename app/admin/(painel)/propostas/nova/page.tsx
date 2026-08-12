@@ -1,61 +1,50 @@
 import BasePage from "@/components/admin/common/BasePage";
 
-import PropostaForm from "@/components/admin/propostas/PropostaForm";
+import PropostaWorkspace from "@/components/admin/propostas/PropostaWorkspace";
 
 import {
   carregarFormularioProposta,
 } from "@/lib/services/propostasFormService";
 
+export const dynamic =
+  "force-dynamic";
 
-export const dynamic = "force-dynamic";
+type Props = {
+  searchParams: Promise<{
+    cotacaoId?: string;
+    propostaId?: string;
+  }>;
+};
 
+export default async function NovaPropostaPage({
+  searchParams,
+}: Props) {
+  const {
+    cotacaoId,
+    propostaId,
+  } = await searchParams;
 
-export default async function NovaPropostaPage(){
-
+  if (!cotacaoId) {
+    throw new Error(
+      "Cotação não informada.",
+    );
+  }
 
   const dados =
-    await carregarFormularioProposta();
-
-
+    await carregarFormularioProposta(
+      cotacaoId,
+    );
 
   return (
-
     <BasePage
-
-      title="Nova Proposta"
-
-      description="Cadastro de uma nova proposta comercial."
-
+      title="Proposta Comercial"
+      description="Confira as cotações selecionadas antes da geração do PDF."
     >
-
-
-      <div className="
-        rounded-2xl
-        border
-        border-slate-200
-        bg-white
-        p-8
-      ">
-
-
-        <PropostaForm
-
-          clientes={dados.clientes}
-
-          cotacoes={dados.cotacoes}
-
-          seguradoras={dados.seguradoras}
-
-          tiposSeguro={dados.tiposSeguro}
-
-        />
-
-
-      </div>
-
-
+      <PropostaWorkspace
+        propostaId={propostaId}
+        cotacaoId={cotacaoId}
+        dados={dados}
+      />
     </BasePage>
-
   );
-
 }

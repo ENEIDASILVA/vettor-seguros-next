@@ -35,6 +35,11 @@ export default async function CotacaoTable() {
           title: "Criada em",
         },
         {
+          key: "cotacoes",
+          title: "Cotações",
+          className: "text-center",
+        },
+        {
           key: "acoes",
           title: "Ações",
           className: "text-center",
@@ -79,12 +84,18 @@ export default async function CotacaoTable() {
           </td>
 
           <td className="px-5 py-4 text-center">
-            <CotacaoActions
-              id={cotacao.id}
-              propostaId={
-                cotacao.proposta?.id ?? null
-              }
-            />
+            <Link
+              href={`/admin/cotacoes/${cotacao.id}/seguradoras`}
+              className="inline-flex min-w-8 items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-[#0A2F5A] hover:bg-blue-100"
+            >
+              {cotacao.quantidadeCotacoesSeguradoras}
+            </Link>
+          </td>
+
+          <td className="px-5 py-4 text-center">
+           <CotacaoActions
+  id={cotacao.id}
+/>
           </td>
         </>
       )}

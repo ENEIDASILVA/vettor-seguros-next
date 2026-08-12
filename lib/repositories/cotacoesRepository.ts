@@ -43,6 +43,8 @@ export type Cotacao = {
 
   dados: CotacaoDados;
 
+  quantidadeCotacoesSeguradoras: number;
+
   observacoes: string | null;
 
   created_at: string;
@@ -73,12 +75,7 @@ export type NovaCotacao = {
 
 
 export type AtualizarCotacao =
-  Partial<
-    Omit<
-      NovaCotacao,
-      "cliente_id"
-    >
-  >;
+  Partial<NovaCotacao>;
 
 
 const cotacaoSelect = `
@@ -153,6 +150,8 @@ function normalizarCotacao(
     updated_at:
       item.updated_at,
 
+    quantidadeCotacoesSeguradoras: 0,
+
     cliente:
       obterPrimeiroRelacionamento<
         CotacaoCliente
@@ -215,6 +214,29 @@ Promise<Cotacao[]> {
     );
   }
 
+  const cotacoesSeguradorasResponse =
+  await supabase
+    .from("cotacoes_seguradoras")
+    .select("cotacao_id");
+
+if (cotacoesSeguradorasResponse.error) {
+  throw new Error(
+    `Não foi possível consultar as cotações das seguradoras: ${cotacoesSeguradorasResponse.error.message}`,
+  );
+}
+
+const quantidadePorCotacao =
+  new Map<string, number>();
+
+for (const item of cotacoesSeguradorasResponse.data ?? []) {
+  const id = String(item.cotacao_id);
+
+  quantidadePorCotacao.set(
+    id,
+    (quantidadePorCotacao.get(id) ?? 0) + 1,
+  );
+}
+
 
   const propostasPorCotacao =
     new Map<
@@ -260,10 +282,37 @@ Promise<Cotacao[]> {
       ) ?? null;
 
 
-    return normalizarCotacao(
-      item,
-      proposta,
-    );
+const cotacao =
+  normalizarCotacao(
+    item,
+    proposta,
+  );
+
+cotacao.quantidadeCotacoesSeguradoras =
+  quantidadePorCotacao.get(
+    String(item.id),
+  ) ?? 0;
+
+if (cotacao.proposta) {
+  cotacao.status = {
+    id: 3,
+    nome: "Proposta Gerada",
+  };
+} else if (
+  cotacao.quantidadeCotacoesSeguradoras > 0
+) {
+  cotacao.status = {
+    id: 2,
+    nome: "Em Cotação",
+  };
+} else {
+  cotacao.status = {
+    id: 1,
+    nome: "Nova",
+  };
+}
+
+return cotacao;
   });
 }
 
@@ -405,25 +454,19 @@ export async function atualizarCotacao(
 
 
   const { error } =
-    await supabase
-      .from("cotacoes")
-      .update({
-        ...dados,
+  await supabase
+    .from("cotacoes")
+    .update({
+      ...dados,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
 
-        updated_at:
-          new Date().toISOString(),
-      })
-      .eq(
-        "id",
-        id,
-      );
-
-
-  if (error) {
-    throw new Error(
-      `Não foi possível atualizar a cotação: ${error.message}`,
-    );
-  }
+if (error) {
+  throw new Error(
+    `Não foi possível atualizar a cotação: ${error.message}`,
+  );
+}
 }
 
 

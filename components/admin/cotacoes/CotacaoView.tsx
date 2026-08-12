@@ -3,6 +3,9 @@ import type {
 } from "react";
 
 import Link from "next/link";
+import { gerarPropostaAction } from "@/app/admin/actions/propostas";
+
+import CotacaoSeguradorasTable from "./CotacaoSeguradorasTable";
 
 import type {
   Cotacao,
@@ -954,7 +957,11 @@ export default function CotacaoView({
               <p className="mt-1 text-lg font-bold text-slate-800">
                 {cotacao.proposta
                   .numeroProposta ||
-                  "Número não informado"}
+                  `Proposta #${String(
+                    cotacao.proposta.id,
+                  )
+                    .slice(0, 8)
+                    .toUpperCase()}`}
               </p>
 
               <p className="mt-2 text-sm font-medium text-blue-700">
@@ -965,7 +972,7 @@ export default function CotacaoView({
 
 
             <Link
-              href={`/admin/propostas/${cotacao.proposta.id}`}
+              href={`/admin/propostas/${cotacao.proposta.id}/workspace`}
               className="rounded-xl bg-[#0A2F5A] px-5 py-3 font-semibold text-white transition hover:bg-[#082648]"
             >
               Ver Proposta
@@ -980,17 +987,30 @@ export default function CotacaoView({
             </p>
 
 
-            <Link
-              href={`/admin/propostas/nova?cotacaoId=${cotacao.id}`}
-              className="rounded-xl bg-green-700 px-5 py-3 font-semibold text-white transition hover:bg-green-800"
+           <form
+              action={async () => {
+                "use server";
+
+                await gerarPropostaAction(
+                  cotacao.id,
+                );
+              }}
             >
-              Gerar Proposta
-            </Link>
+              <button
+                type="submit"
+                className="rounded-xl bg-green-700 px-5 py-3 font-semibold text-white transition hover:bg-green-800"
+              >
+                Gerar Proposta
+              </button>
+            </form>
 
           </div>
         )}
       </Secao>
 
+      <CotacaoSeguradorasTable
+        cotacaoId={cotacao.id}
+      />
 
       <div className="flex flex-wrap justify-end gap-3">
 

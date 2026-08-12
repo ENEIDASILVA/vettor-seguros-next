@@ -1,321 +1,155 @@
 import type {
-  PropostaLista
+  PropostaLista,
 } from "@/lib/repositories/propostasRepository";
 
 import PropostaActions from "./PropostaActions";
-
 
 type Props = {
   propostas: PropostaLista[];
 };
 
-
-
 function moeda(valor: number | null) {
-
   if (valor === null || valor === undefined) {
-    return "R$ 0,00";
+    return "-";
   }
 
-
-  return valor.toLocaleString(
-    "pt-BR",
-    {
-      style: "currency",
-      currency: "BRL",
-    }
-  );
-
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
 }
 
+function obterSituacao(
+  proposta: PropostaLista,
+) {
+  if (proposta.possuiApolice) {
+    return "Convertida em Apólice";
+  }
 
+  if (
+    "arquivoPdfPath" in proposta &&
+    (proposta as any).arquivoPdfPath
+  ) {
+    return "Enviada ao Cliente";
+  }
 
+  return "Em elaboração";
+}
+
+function statusClass(status: string) {
+  switch (status) {
+    case "Enviada ao Cliente":
+      return "bg-blue-100 text-blue-700";
+
+    case "Convertida em Apólice":
+      return "bg-emerald-100 text-emerald-700";
+
+    default:
+      return "bg-yellow-100 text-yellow-700";
+  }
+}
 
 export default function PropostaTable({
   propostas,
 }: Props) {
-
-
   if (propostas.length === 0) {
-
     return (
-
-      <div
-        className="
-        rounded-xl
-        border
-        border-dashed
-        border-slate-300
-        p-10
-        text-center
-        "
-      >
-
+      <div className="rounded-xl border border-dashed border-slate-300 p-10 text-center">
         Nenhuma proposta cadastrada.
-
       </div>
-
     );
-
   }
 
-
-
   return (
-
-    <div
-      className="
-      w-full
-      overflow-hidden
-      rounded-2xl
-      border
-      border-slate-200
-      "
-    >
-
-
-      <table
-        className="
-        w-full
-        table-fixed
-        "
-      >
-
-
-        <thead
-          className="bg-slate-50"
-        >
-
+    <div className="overflow-hidden rounded-2xl border border-slate-200">
+      <table className="w-full table-fixed">
+        <thead className="bg-slate-50">
           <tr>
-
-
-            <th
-              className="
-              w-[18%]
-              px-4
-              py-4
-              text-left
-              "
-            >
+            <th className="w-[22%] px-4 py-4 text-left">
               Cliente
             </th>
 
-
-            <th
-              className="
-              w-[18%]
-              px-4
-              py-4
-              text-left
-              "
-            >
-              Seguradora
+            <th className="w-[23%] px-4 py-4 text-left">
+              Seguradoras
             </th>
 
-
-            <th
-              className="
-              w-[15%]
-              px-4
-              py-4
-              text-left
-              "
-            >
+            <th className="w-[14%] px-4 py-4 text-left">
               Seguro
             </th>
 
-
-            <th
-              className="
-              w-[15%]
-              px-4
-              py-4
-              text-left
-              "
-            >
-              Proposta
+            <th className="w-[15%] px-4 py-4 text-left">
+              Melhor Prêmio
             </th>
 
-
-            <th
-              className="
-              w-[12%]
-              px-4
-              py-4
-              text-left
-              "
-            >
-              Prêmio
+            <th className="w-[14%] px-4 py-4 text-left">
+              Situação
             </th>
 
-
-            <th
-              className="
-              w-[12%]
-              px-4
-              py-4
-              text-left
-              "
-            >
-              Status
-            </th>
-
-
-            <th
-              className="
-              w-[10%]
-              px-4
-              py-4
-              text-center
-              "
-            >
+            <th className="w-[12%] px-4 py-4 text-center">
               Ações
             </th>
-
-
           </tr>
-
         </thead>
 
-
-
-
         <tbody>
+          {propostas.map((proposta) => {
+            const situacao =
+              obterSituacao(proposta);
 
-
-          {
-            propostas.map((proposta) => (
-
+            return (
               <tr
                 key={proposta.id}
-                className="
-                border-t
-                border-slate-100
-                "
+                className="border-t border-slate-100"
               >
-
-
-
-                <td
-                  className="
-                  px-4
-                  py-4
-                  truncate
-                  "
-                >
-                  {proposta.cliente}
+                <td className="px-4 py-4">
+                  <div className="truncate font-medium">
+                    {proposta.cliente}
+                  </div>
                 </td>
 
-
-
-                <td
-                  className="
-                  px-4
-                  py-4
-                  truncate
-                  "
-                >
-                  {proposta.seguradora}
+                <td className="px-4 py-4">
+                  <div className="text-sm leading-6">
+                    {proposta.seguradoras.length
+                      ? proposta.seguradoras.join(
+                          " • ",
+                        )
+                      : "-"}
+                  </div>
                 </td>
 
-
-
-                <td
-                  className="
-                  px-4
-                  py-4
-                  truncate
-                  "
-                >
+                <td className="px-4 py-4">
                   {proposta.tipoSeguro}
                 </td>
 
-
-
-                <td
-                  className="
-                  px-4
-                  py-4
-                  truncate
-                  "
-                >
-                  {proposta.numeroProposta ?? "-"}
+                <td className="px-4 py-4 font-semibold">
+                  {moeda(
+                    proposta.melhorPremio ??
+                      proposta.premioTotal,
+                  )}
                 </td>
 
-
-
-                <td
-                  className="
-                  px-4
-                  py-4
-                  "
-                >
-                  {moeda(proposta.premioTotal)}
-                </td>
-
-
-
-                <td
-                  className="
-                  px-4
-                  py-4
-                  "
-                >
-
+                <td className="px-4 py-4">
                   <span
-                    className="
-                    inline-flex
-                    rounded-full
-                    bg-yellow-100
-                    px-3
-                    py-1
-                    text-sm
-                    text-yellow-700
-                    "
+                    className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${statusClass(
+                      situacao,
+                    )}`}
                   >
-
-                    {proposta.status}
-
+                    {situacao}
                   </span>
-
                 </td>
 
-
-
-                <td
-                  className="
-                  px-4
-                  py-4
-                  "
-                >
-
-
-                  
-
-                  <PropostaActions
-                    id={proposta.id}
-                    possuiApolice={proposta.possuiApolice}
-                    apoliceId={proposta.apoliceId}
-                  />
-
+                <td className="px-4 py-4">
+              <PropostaActions
+                id={proposta.id}
+                possuiApolice={proposta.possuiApolice}
+                apoliceId={proposta.apoliceId}
+                />
                 </td>
-
-
-
               </tr>
-
-            ))
-          }
-
-
+            );
+          })}
         </tbody>
-
-
       </table>
-
-
     </div>
-
   );
-
 }

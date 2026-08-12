@@ -1,18 +1,8 @@
 "use client";
 
 import Link from "next/link";
-
-import {
-  Eye,
-  FileCheck2,
-  FilePlus2,
-  Pencil,
-  Trash2,
-} from "lucide-react";
-
-import {
-  excluirProposta,
-} from "@/app/admin/actions/propostas";
+import { Eye, Pencil, FilePlus2, Trash2 } from "lucide-react";
+import { excluirProposta } from "@/app/admin/actions/propostas";
 
 type Props = {
   id: string;
@@ -26,11 +16,7 @@ export default function PropostaActions({
   apoliceId,
 }: Props) {
   async function handleExcluir() {
-    const confirmar = window.confirm(
-      "Deseja realmente excluir esta proposta?",
-    );
-
-    if (!confirmar) {
+    if (!confirm("Deseja excluir esta proposta?")) {
       return;
     }
 
@@ -39,58 +25,58 @@ export default function PropostaActions({
 
   return (
     <div className="flex items-center justify-center gap-2">
-      {/* Visualizar proposta */}
+
+      {/* VISUALIZAR */}
+
       <Link
-        href={`/admin/propostas/${id}`}
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100"
-        title="Visualizar proposta"
-        aria-label="Visualizar proposta"
+        href={`/admin/propostas/${id}/workspace`}
+        className="text-slate-600 hover:text-slate-900"
+        title="Visualizar"
       >
         <Eye size={18} />
       </Link>
 
-      {/* Editar proposta */}
+      {/* EDITAR */}
+
       <Link
-        href={`/admin/propostas/${id}/editar`}
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-amber-600 transition hover:bg-amber-50"
-        title="Editar proposta"
-        aria-label="Editar proposta"
+        href={`/admin/propostas/${id}/workspace?edit=true`}
+        className="text-amber-600 hover:text-amber-700"
+        title="Editar"
       >
         <Pencil size={18} />
       </Link>
 
-      {/* Proposta já possui apólice */}
-      {possuiApolice && apoliceId ? (
+      {/* APÓLICE */}
+
+      {possuiApolice ? (
         <Link
           href={`/admin/apolices/${apoliceId}`}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-700 transition hover:bg-blue-50"
-          title="Ver Apólice"
-          aria-label="Ver Apólice"
+          className="text-blue-700 hover:text-blue-900"
+          title="Abrir Apólice"
         >
-          <FileCheck2 size={18} />
+          <FilePlus2 size={18} />
         </Link>
       ) : (
-        /* Proposta ainda não possui apólice */
         <Link
           href={`/admin/apolices/nova?propostaId=${id}`}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-green-600 transition hover:bg-green-50"
-          title="Emitir Apólice"
-          aria-label="Emitir Apólice"
+          className="text-green-700 hover:text-green-900"
+          title="Converter em Apólice"
         >
           <FilePlus2 size={18} />
         </Link>
       )}
 
-      {/* Excluir proposta */}
+      {/* EXCLUIR */}
+
       <button
         type="button"
         onClick={handleExcluir}
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 transition hover:bg-red-50"
-        title="Excluir proposta"
-        aria-label="Excluir proposta"
+        className="text-red-600 hover:text-red-800"
+        title="Excluir"
       >
         <Trash2 size={18} />
       </button>
+
     </div>
   );
 }

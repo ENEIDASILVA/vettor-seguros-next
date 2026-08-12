@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 
-import { createClient } from "@/lib/supabase/server";
 import Sidebar from "@/components/admin/Sidebar";
+import ToastProvider from "@/components/ui/ToastProvider";
+import { createClient } from "@/lib/supabase/server";
 
 type AdminLayoutProps = {
   children: ReactNode;
@@ -22,12 +23,14 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
-      <Sidebar />
+    <ToastProvider>
+      <div className="flex min-h-screen bg-slate-100">
+        <Sidebar />
 
-      <main className="min-w-0 flex-1 overflow-auto p-4 sm:p-8">
-        {children}
-      </main>
-    </div>
+        <main className="min-w-0 flex-1 overflow-auto p-4 sm:p-8">
+          {children}
+        </main>
+      </div>
+    </ToastProvider>
   );
 }
