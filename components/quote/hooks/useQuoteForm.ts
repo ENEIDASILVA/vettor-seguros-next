@@ -166,7 +166,11 @@ export function useQuoteForm() {
   }
 
   function resetForm() {
-    setForm(initialForm);
+    setForm({
+      ...initialForm,
+      beneficiaries: [],
+      coverages: [],
+    });
   }
 
   return {

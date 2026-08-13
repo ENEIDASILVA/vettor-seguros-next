@@ -2,6 +2,7 @@
 import {
   useEffect,
   useRef,
+  useState,
 } from "react";
 import Card from "../ui/Card";
 import Container from "../ui/Container";
@@ -24,7 +25,13 @@ export default function QuoteWizard() {
   const {
     form,
     updateInsurance,
+    resetForm,
   } = quoteForm;
+
+  const [successMessage, setSuccessMessage] =
+    useState(false);
+  const [sending, setSending] =
+    useState(false);
 
   const flow = getFlow(form.insuranceType);
   const totalSteps = flow.length;
@@ -95,36 +102,52 @@ section.scrollIntoView({
 });
   }, [step]);
   async function sendQuote() {
-  try {
-    const response = await fetch("/api/cotacoes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
-
-    const result = await response.json();
-
-    if (!response.ok || !result.success) {
-      throw new Error(
-        result.error ??
-          "Não foi possível registrar sua cotação."
-      );
+    if (sending) {
+      return;
     }
 
-    const message = formatWhatsAppMessage(form);
-    const link = createWhatsAppLink(message);
+    try {
+      setSending(true);
 
-    window.open(link, "_blank");
-  } catch (error) {
-    console.error(error);
+      const response = await fetch("/api/cotacoes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
 
-    alert(
-      "Não foi possível enviar sua cotação neste momento. Tente novamente em alguns instantes."
-    );
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.error ??
+            "Não foi possível registrar sua cotação."
+        );
+      }
+
+      const message = formatWhatsAppMessage(form);
+      const link = createWhatsAppLink(message);
+
+      window.open(link, "_blank");
+
+      setSuccessMessage(true);
+
+      window.setTimeout(() => {
+        resetForm();
+        goToStep(1);
+        setSuccessMessage(false);
+      }, 3000);
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Não foi possível enviar sua cotação neste momento. Tente novamente em alguns instantes."
+      );
+    } finally {
+      setSending(false);
+    }
   }
-}
   const canGoNext =
     canProceed(step, form);
   return (
@@ -153,6 +176,27 @@ section.scrollIntoView({
         hover={false}
         className="mx-auto max-w-4xl border border-gray-100 p-5 shadow-xl sm:p-10"
       >
+        {successMessage ? (
+          <div className="py-10 text-center sm:py-14">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl text-emerald-700">
+              ✓
+            </div>
+
+            <h3 className="mt-5 text-2xl font-bold text-[#0B2E6D]">
+              Cotação enviada com sucesso!
+            </h3>
+
+            <p className="mx-auto mt-3 max-w-xl leading-relaxed text-gray-600">
+              Recebemos sua solicitação. A Vettor Seguros analisará
+              seus dados e entrará em contato com você.
+            </p>
+
+            <p className="mt-5 text-sm font-medium text-gray-500">
+              O formulário será reiniciado em instantes...
+            </p>
+          </div>
+        ) : (
+          <>
         <ProgressBar
           step={step}
           totalSteps={totalSteps}
@@ -166,7 +210,7 @@ section.scrollIntoView({
 
         <Navigation
           canGoBack={!isFirstStep}
-          canGoNext={canGoNext}
+          canGoNext={canGoNext && !sending}
           onBack={back}
           onNext={
             isLastStep
@@ -175,10 +219,14 @@ section.scrollIntoView({
           }
           nextLabel={
             isLastStep
-              ? "Enviar Cotação"
+              ? sending
+                ? "Enviando..."
+                : "Enviar Cotação"
               : "Próximo"
           }
         />
+          </>
+        )}
       </Card>
     </Container>
   </section>

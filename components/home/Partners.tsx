@@ -8,6 +8,8 @@ const partners = [
   "Suhai",
   "Mapfre",
   "Yelum",
+  "HDI",
+  "Aliro"
 ];
 
 export default function Partners() {
