@@ -11,10 +11,10 @@ import CurrencyInput from "@/components/ui/CurrencyInput";
 import PercentInput from "@/components/ui/PercentInput";
 import Select from "@/components/ui/Select";
 
-import type {
-  CotacaoSeguradoraFormData,
-  CotacaoSeguradoraSelectOption,
+import {
   criarDadosResidencialVazios,
+  type CotacaoSeguradoraFormData,
+  type CotacaoSeguradoraSelectOption,
 } from "../CotacaoSeguradoraForm";
 
 

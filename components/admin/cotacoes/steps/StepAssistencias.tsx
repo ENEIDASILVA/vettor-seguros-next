@@ -15,10 +15,10 @@ import {
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 
-import type {
-  CotacaoSeguradoraFormData,
-  CotacaoSeguradoraSelectOption,
+import {
   criarDadosResidencialVazios,
+  type CotacaoSeguradoraFormData,
+  type CotacaoSeguradoraSelectOption,
 } from "../CotacaoSeguradoraForm";
 
 
