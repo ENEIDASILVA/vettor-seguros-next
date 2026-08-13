@@ -50,23 +50,26 @@ type PropostaListaFormulario = {
 };
 
 type PropostaOrigem =
-  | PropostaConversaoApolice
-  | {
-      id: string;
-      clienteId?: string | null;
-      cotacaoId?: string | null;
-      seguradoraId?: number | null;
-      tipoSeguroId?: number | null;
-      cliente?: string;
-      seguradora?: string;
-      tipoSeguro?: string;
-      numeroProposta?: string | null;
-      premioLiquido?: number | null;
-      premioTotal?: number | null;
-      comissaoPercentual?: number | null;
-      comissaoValor?: number | null;
-      status?: string;
-    };
+  (
+    | PropostaConversaoApolice
+    | {
+        id: string;
+        clienteId?: string | null;
+        cotacaoId?: string | null;
+        tipoSeguroId?: number | null;
+        cliente?: string;
+        seguradora?: string;
+        tipoSeguro?: string;
+        numeroProposta?: string | null;
+        status?: string;
+      }
+  ) & {
+    seguradoraId?: number | null;
+    premioLiquido?: number | null;
+    premioTotal?: number | null;
+    comissaoPercentual?: number | null;
+    comissaoValor?: number | null;
+  };
 
 export type ApoliceFormData = {
   id: string;
