@@ -7,7 +7,8 @@ type Props = {
 export default function CotacaoStatusBadge({
   status,
 }: Props) {
-  const variant = getStatusVariant(status);
+  const variant =
+    getStatusVariant(status);
 
   return (
     <StatusBadge
@@ -26,8 +27,9 @@ function getStatusVariant(
   | "info"
   | "neutral" {
   switch (status) {
+    case "Nova":
     case "Novo":
-      return "info";
+      return "success";
 
     case "Em Cotação":
       return "warning";

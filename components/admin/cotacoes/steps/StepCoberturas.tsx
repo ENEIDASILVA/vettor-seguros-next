@@ -2,6 +2,7 @@
 
 import {
   CarFront,
+  Home,
   Shield,
   Users,
 } from "lucide-react";
@@ -13,6 +14,7 @@ import Select from "@/components/ui/Select";
 import type {
   CotacaoSeguradoraFormData,
   CotacaoSeguradoraSelectOption,
+  criarDadosResidencialVazios,
 } from "../CotacaoSeguradoraForm";
 
 
@@ -28,6 +30,8 @@ type Props = {
 
   tiposCasco:
     CotacaoSeguradoraSelectOption[];
+
+  tipoSeguro: string;
 };
 
 
@@ -78,11 +82,11 @@ function moeda(
 }
 
 
-export default function StepCoberturas({
+function StepCoberturasAuto({
   form,
   setValue,
   tiposCasco,
-}: Props) {
+}: Omit<Props, "tipoSeguro">) {
   return (
     <div className="space-y-8">
 
@@ -550,3 +554,175 @@ export default function StepCoberturas({
   );
 }
 
+
+
+const COBERTURAS_RESIDENCIAIS = [
+  ["incendio", "Incêndio, Explosão, Implosão, Fumaça e Queda de Aeronave"],
+  ["danosEletricos", "Danos Elétricos"],
+  ["vendaval", "Vendaval / Furacão / Ciclone / Tornado / Granizo"],
+  ["alagamento", "Alagamento / Inundação"],
+  ["rouboFurto", "Roubo e Furto de Bens"],
+  ["quebraVidros", "Quebra de Vidros"],
+  ["rcFamiliar", "Responsabilidade Civil Familiar"],
+  ["perdaAluguel", "Perda ou Pagamento de Aluguel"],
+  ["outras", "Outras Coberturas"],
+] as const;
+
+function StepCoberturasResidencial({
+  form,
+  setValue,
+}: Pick<Props, "form" | "setValue">) {
+  const residencial =
+    form.dadosEspecificos.residencial ??
+    criarDadosResidencialVazios();
+
+  function atualizarCobertura(
+    chave: keyof typeof residencial.coberturas,
+    patch: Partial<(typeof residencial.coberturas)[typeof chave]>,
+  ) {
+    setValue("dadosEspecificos", {
+      ...form.dadosEspecificos,
+      residencial: {
+        ...residencial,
+        coberturas: {
+          ...residencial.coberturas,
+          [chave]: {
+            ...residencial.coberturas[chave],
+            ...patch,
+          },
+        },
+      },
+    });
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-700">
+          <Home size={20} />
+        </div>
+        <div>
+          <h4 className="text-lg font-bold text-slate-800">
+            Coberturas Residenciais
+          </h4>
+          <p className="text-sm text-slate-500">
+            Marque as coberturas contratadas e informe o LMI e a franquia ou participação do segurado.
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {COBERTURAS_RESIDENCIAIS.map(([chave, label]) => {
+          const cobertura = residencial.coberturas[chave];
+
+          return (
+            <div
+              key={chave}
+              className={`rounded-2xl border p-5 ${
+                cobertura.contratada
+                  ? "border-green-200 bg-green-50/60"
+                  : "border-slate-200 bg-white"
+              }`}
+            >
+              <label className="flex cursor-pointer items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={cobertura.contratada}
+                  onChange={(event) =>
+                    atualizarCobertura(chave, {
+                      contratada: event.target.checked,
+                    })
+                  }
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+                <span className="font-semibold text-slate-800">
+                  {label}
+                </span>
+              </label>
+
+              {cobertura.contratada && (
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  <CampoCobertura label="LMI — Limite Máximo de Indenização">
+                    <CurrencyInput
+                      value={cobertura.lmi}
+                      onValueChange={(valor) =>
+                        atualizarCobertura(chave, { lmi: valor })
+                      }
+                      placeholder="R$ 0,00"
+                    />
+                  </CampoCobertura>
+
+                  <div>
+                    <label className="mb-2 block font-semibold text-blue-900">
+                      Franquia / Participação do Segurado
+                    </label>
+                    <input
+                      type="text"
+                      value={cobertura.franquia}
+                      onChange={(event) =>
+                        atualizarCobertura(chave, {
+                          franquia: event.target.value,
+                        })
+                      }
+                      placeholder="Ex.: 10% dos prejuízos, mínimo R$ 500,00"
+                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-700 outline-none focus:border-blue-800 focus:ring-2 focus:ring-blue-100"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {chave === "outras" && cobertura.contratada && (
+                <div className="mt-1">
+                  <label className="mb-2 block font-semibold text-blue-900">
+                    Descrição das outras coberturas
+                  </label>
+                  <textarea
+                    value={residencial.outrasCoberturasDescricao}
+                    onChange={(event) =>
+                      setValue("dadosEspecificos", {
+                        ...form.dadosEspecificos,
+                        residencial: {
+                          ...residencial,
+                          outrasCoberturasDescricao: event.target.value,
+                        },
+                      })
+                    }
+                    rows={3}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-700 outline-none focus:border-blue-800 focus:ring-2 focus:ring-blue-100"
+                    placeholder="Descreva as demais coberturas oferecidas."
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export default function StepCoberturas(props: Props) {
+  const residencial =
+    (props.tipoSeguro ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .includes("residencial");
+
+  if (residencial) {
+    return (
+      <StepCoberturasResidencial
+        form={props.form}
+        setValue={props.setValue}
+      />
+    );
+  }
+
+  return (
+    <StepCoberturasAuto
+      form={props.form}
+      setValue={props.setValue}
+      tiposCasco={props.tiposCasco}
+    />
+  );
+}

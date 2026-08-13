@@ -27,6 +27,8 @@ type Props = {
 
   tiposCotacao:
     CotacaoSeguradoraSelectOption[];
+
+  tipoSeguro: string;
 };
 
 
@@ -61,7 +63,15 @@ export default function StepDadosGerais({
   seguradoras,
   statusOptions,
   tiposCotacao,
+  tipoSeguro,
 }: Props) {
+  const residencial =
+    (tipoSeguro ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .includes("residencial");
+
   return (
     <div className="space-y-8">
       <section>
@@ -120,17 +130,19 @@ export default function StepDadosGerais({
             }
           />
 
-          <Input
-            label="Classe de Bônus"
-            value={form.classeBonus}
-            placeholder="Ex.: 10"
-            onChange={(value) =>
-              setValue(
-                "classeBonus",
-                value,
-              )
-            }
-          />
+          {!residencial && (
+            <Input
+              label="Classe de Bônus"
+              value={form.classeBonus}
+              placeholder="Ex.: 10"
+              onChange={(value) =>
+                setValue(
+                  "classeBonus",
+                  value,
+                )
+              }
+            />
+          )}
 
           <Input
             label="Número da Cotação"

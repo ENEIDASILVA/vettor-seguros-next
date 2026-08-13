@@ -1,15 +1,14 @@
-import { redirect } from "next/navigation";
+import {
+  redirect,
+} from "next/navigation";
 
 import BasePage from "@/components/admin/common/BasePage";
 import ApoliceForm from "@/components/admin/apolices/ApoliceForm";
 
 import {
+  carregarConversaoProposta,
   carregarFormularioApolice,
 } from "@/lib/services/apolicesFormService";
-
-import {
-  buscarPropostaPorId,
-} from "@/lib/repositories/propostasRepository";
 
 import {
   buscarApolicePorProposta,
@@ -24,15 +23,20 @@ type Props = {
 export default async function NovaApolicePage({
   searchParams,
 }: Props) {
-  const params = await searchParams;
+  const params =
+    await searchParams;
 
-  if (params.propostaId) {
+  if (
+    params.propostaId
+  ) {
     const apoliceExistente =
       await buscarApolicePorProposta(
         params.propostaId,
       );
 
-    if (apoliceExistente) {
+    if (
+      apoliceExistente
+    ) {
       redirect(
         `/admin/apolices/${apoliceExistente.id}`,
       );
@@ -42,25 +46,55 @@ export default async function NovaApolicePage({
   const dados =
     await carregarFormularioApolice();
 
-  const proposta = params.propostaId
-    ? await buscarPropostaPorId(
-        params.propostaId,
-      )
-    : null;
+  const conversao =
+    params.propostaId
+      ? await carregarConversaoProposta(
+          params.propostaId,
+        )
+      : null;
 
   return (
     <BasePage
-      title="Nova Apólice"
-      description="Cadastro de uma nova apólice."
+      title={
+        conversao
+          ? "Converter Proposta em Apólice"
+          : "Nova Apólice"
+      }
+      description={
+        conversao
+          ? "Selecione a cotação aceita pelo cliente e conclua a emissão da apólice."
+          : "Cadastro de uma nova apólice."
+      }
     >
       <ApoliceForm
-        clientes={dados.clientes}
-        cotacoes={dados.cotacoes}
-        seguradoras={dados.seguradoras}
-        tiposSeguro={dados.tiposSeguro}
-        propostas={dados.propostas}
-        proposta={proposta}
-        propostaId={params.propostaId}
+        clientes={
+          dados.clientes
+        }
+        cotacoes={
+          dados.cotacoes
+        }
+        seguradoras={
+          dados.seguradoras
+        }
+        tiposSeguro={
+          dados.tiposSeguro
+        }
+        propostas={
+          dados.propostas
+        }
+        proposta={
+          conversao
+            ?.proposta ??
+          null
+        }
+        propostaId={
+          params.propostaId
+        }
+        cotacoesProposta={
+          conversao
+            ?.cotacoesProposta ??
+          []
+        }
       />
     </BasePage>
   );

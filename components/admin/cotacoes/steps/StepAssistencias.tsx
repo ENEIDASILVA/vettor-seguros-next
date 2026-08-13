@@ -5,6 +5,7 @@ import {
   CarTaxiFront,
   CheckCircle2,
   Hotel,
+  Home,
   KeyRound,
   Lightbulb,
   ShieldCheck,
@@ -17,6 +18,7 @@ import Select from "@/components/ui/Select";
 import type {
   CotacaoSeguradoraFormData,
   CotacaoSeguradoraSelectOption,
+  criarDadosResidencialVazios,
 } from "../CotacaoSeguradoraForm";
 
 
@@ -35,6 +37,8 @@ type Props = {
 
   assistenciaOptions:
     CotacaoSeguradoraSelectOption[];
+
+  tipoSeguro: string;
 };
 
 
@@ -145,12 +149,12 @@ function CheckCard({
 }
 
 
-export default function StepAssistencias({
+function StepAssistenciasAuto({
   form,
   setValue,
   carroReservaOptions,
   assistenciaOptions,
-}: Props) {
+}: Omit<Props, "tipoSeguro">) {
   function alterarBooleano(
     field: BooleanField,
     checked: boolean,
@@ -445,5 +449,144 @@ export default function StepAssistencias({
       </section>
 
     </div>
+  );
+}
+
+const SERVICOS_RESIDENCIAIS = [
+  ["chaveiro", "Chaveiro", "Abertura e reparo emergencial de fechaduras."],
+  ["eletricista", "Eletricista", "Atendimento emergencial para instalações elétricas."],
+  ["encanador", "Encanador", "Atendimento emergencial para vazamentos e instalações hidráulicas."],
+  ["vidraceiro", "Vidraceiro", "Reparo emergencial de vidros."],
+  ["desentupimento", "Desentupimento", "Serviço emergencial de desentupimento."],
+  ["coberturaTelhado", "Cobertura provisória de telhado", "Proteção emergencial do imóvel após evento coberto."],
+  ["coberturaPortasJanelas", "Cobertura provisória de portas e janelas", "Fechamento provisório para proteção do imóvel."],
+  ["limpeza", "Limpeza", "Limpeza emergencial após sinistro."],
+  ["guardaResidencia", "Guarda da residência", "Vigilância temporária quando necessária."],
+  ["transferenciaMoveis", "Transferência de móveis", "Remoção ou transferência emergencial de móveis."],
+  ["hospedagem", "Hospedagem", "Hospedagem emergencial dos moradores."],
+  ["outros", "Outros serviços", "Outras assistências oferecidas pela seguradora."],
+] as const;
+
+function StepAssistenciasResidencial({
+  form,
+  setValue,
+}: Pick<Props, "form" | "setValue">) {
+  const residencial =
+    form.dadosEspecificos.residencial ??
+    criarDadosResidencialVazios();
+
+  const assistencias = residencial.assistencias;
+
+  function atualizar(
+    patch: Partial<typeof assistencias>,
+  ) {
+    setValue("dadosEspecificos", {
+      ...form.dadosEspecificos,
+      residencial: {
+        ...residencial,
+        assistencias: {
+          ...assistencias,
+          ...patch,
+        },
+      },
+    });
+  }
+
+  return (
+    <div className="space-y-8">
+      <section>
+        <div className="mb-5 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-700">
+            <Home size={20} />
+          </div>
+          <div>
+            <h4 className="text-lg font-bold text-slate-800">
+              Assistência Residencial
+            </h4>
+            <p className="text-sm text-slate-500">
+              Informe o plano e marque os serviços disponibilizados pela seguradora.
+            </p>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <label className="mb-2 block font-semibold text-blue-900">
+            Plano de Assistência
+          </label>
+          <input
+            type="text"
+            value={assistencias.plano ?? ""}
+            onChange={(event) =>
+              atualizar({
+                plano: event.target.value,
+              })
+            }
+            placeholder="Ex.: Compacto, Completo, Premium..."
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-700 outline-none focus:border-blue-800 focus:ring-2 focus:ring-blue-100"
+          />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          {SERVICOS_RESIDENCIAIS.map(([chave, label, description]) => (
+            <CheckCard
+              key={chave}
+              label={label}
+              description={description}
+              checked={Boolean(assistencias[chave])}
+              onChange={(checked) =>
+                atualizar({ [chave]: checked })
+              }
+              icon={<Wrench size={19} />}
+            />
+          ))}
+        </div>
+
+        {assistencias.outros && (
+          <div className="mt-5">
+            <label className="mb-2 block font-semibold text-blue-900">
+              Descreva os outros serviços
+            </label>
+            <textarea
+              value={assistencias.outrosDescricao}
+              onChange={(event) =>
+                atualizar({
+                  outrosDescricao: event.target.value,
+                })
+              }
+              rows={3}
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-700 outline-none focus:border-blue-800 focus:ring-2 focus:ring-blue-100"
+              placeholder="Informe outras assistências incluídas."
+            />
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+export default function StepAssistencias(props: Props) {
+  const residencial =
+    (props.tipoSeguro ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .includes("residencial");
+
+  if (residencial) {
+    return (
+      <StepAssistenciasResidencial
+        form={props.form}
+        setValue={props.setValue}
+      />
+    );
+  }
+
+  return (
+    <StepAssistenciasAuto
+      form={props.form}
+      setValue={props.setValue}
+      carroReservaOptions={props.carroReservaOptions}
+      assistenciaOptions={props.assistenciaOptions}
+    />
   );
 }

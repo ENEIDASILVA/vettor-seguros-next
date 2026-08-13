@@ -13,15 +13,19 @@ const yesNoOptions = [
 ];
 
 const insurerOptions = [
+  { label: "Azul", value: "Azul" },
   { label: "Porto", value: "Porto" },
   { label: "Tokio Marine", value: "Tokio Marine" },
   { label: "HDI", value: "HDI" },
+  { label: "Itaú", value: "Itau" },
   { label: "Allianz", value: "Allianz" },
   { label: "Mapfre", value: "Mapfre" },
   {
     label: "Bradesco Seguros",
     value: "Bradesco Seguros",
   },
+  { label: "SUHAI", value: "SUHAI" },
+  { label: "Yelum", value: "Yelum" },
   { label: "Outra", value: "Outra" },
   { label: "Não sei", value: "Não sei" },
 ];

@@ -1,104 +1,16 @@
-import Link from "next/link";
+import {
+  obterCotacoes,
+} from "@/lib/services/cotacoesService";
 
-import DataTable from "@/components/admin/common/DataTable";
-import EmptyState from "@/components/admin/common/EmptyState";
-
-import { obterCotacoes } from "@/lib/services/cotacoesService";
-
-import CotacaoActions from "./CotacaoActions";
-import CotacaoStatusBadge from "./CotacaoStatusBadge";
+import CotacaoTableClient from "./CotacaoTableClient";
 
 export default async function CotacaoTable() {
-  const cotacoes = await obterCotacoes();
+  const cotacoes =
+    await obterCotacoes();
 
   return (
-    <DataTable
-      columns={[
-        {
-          key: "cliente",
-          title: "Cliente",
-        },
-        {
-          key: "seguro",
-          title: "Seguro",
-        },
-        {
-          key: "status",
-          title: "Status",
-        },
-        {
-          key: "origem",
-          title: "Origem",
-        },
-        {
-          key: "created_at",
-          title: "Criada em",
-        },
-        {
-          key: "cotacoes",
-          title: "Cotações",
-          className: "text-center",
-        },
-        {
-          key: "acoes",
-          title: "Ações",
-          className: "text-center",
-        },
-      ]}
-      data={cotacoes}
-      emptyState={
-        <EmptyState
-          title="Nenhuma cotação encontrada"
-          description="Cadastre a primeira cotação."
-          actionLabel="Nova Cotação"
-          actionHref="/admin/cotacoes/nova"
-        />
-      }
-      renderRow={(cotacao) => (
-        <>
-          <td className="px-5 py-4">
-            <Link
-              href={`/admin/clientes/${cotacao.cliente_id}`}
-              className="font-medium text-slate-700 hover:text-[#0A2F5A]"
-            >
-              {cotacao.cliente?.nome}
-            </Link>
-          </td>
-
-          <td className="px-5 py-4">
-            {cotacao.tipo_seguro?.nome}
-          </td>
-
-          <td className="px-5 py-4">
-            <CotacaoStatusBadge
-              status={cotacao.status?.nome ?? ""}
-            />
-          </td>
-
-          <td className="px-5 py-4">
-            {cotacao.origem ?? "-"}
-          </td>
-
-          <td className="px-5 py-4">
-            {new Date(cotacao.created_at).toLocaleDateString("pt-BR")}
-          </td>
-
-          <td className="px-5 py-4 text-center">
-            <Link
-              href={`/admin/cotacoes/${cotacao.id}/seguradoras`}
-              className="inline-flex min-w-8 items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-[#0A2F5A] hover:bg-blue-100"
-            >
-              {cotacao.quantidadeCotacoesSeguradoras}
-            </Link>
-          </td>
-
-          <td className="px-5 py-4 text-center">
-           <CotacaoActions
-  id={cotacao.id}
-/>
-          </td>
-        </>
-      )}
+    <CotacaoTableClient
+      cotacoes={cotacoes}
     />
   );
 }

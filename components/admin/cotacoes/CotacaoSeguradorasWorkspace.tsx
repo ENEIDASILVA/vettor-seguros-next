@@ -44,8 +44,9 @@ import SeguradoraCotacaoCard from "./SeguradoraCotacaoCard";
 
 import SeguradoraVaziaCard from "./SeguradoraVaziaCard";
 
-import type {
-  CotacaoSeguradoraFormData,
+import {
+  criarDadosResidencialVazios,
+  type CotacaoSeguradoraFormData,
 } from "./CotacaoSeguradoraForm";
 
 import useCotacaoWorkspace from "./useCotacaoWorkspace";
@@ -66,6 +67,8 @@ type Props = {
   carroReservaOptions: SelectOption[];
 
   assistenciaOptions: SelectOption[];
+
+  tipoSeguro: string;
 };
 
 function criarFormularioVazio(
@@ -180,6 +183,10 @@ function criarFormularioVazio(
     recomendada: false,
 
     ordemExibicao: 0,
+
+    dadosEspecificos: {
+      residencial: criarDadosResidencialVazios(),
+    },
   };
 }
 
@@ -351,6 +358,9 @@ function converterCotacaoParaFormulario(
 
     ordemExibicao:
       cotacao.ordemExibicao,
+
+    dadosEspecificos:
+      (cotacao.dadosEspecificos ?? {}) as CotacaoSeguradoraFormData["dadosEspecificos"],
   };
 }
 
@@ -363,6 +373,7 @@ export default function CotacaoSeguradorasWorkspace({
   tiposCasco,
   carroReservaOptions,
   assistenciaOptions,
+  tipoSeguro,
 }: Props) {
   const router =
     useRouter();
@@ -743,6 +754,7 @@ export default function CotacaoSeguradorasWorkspace({
         assistenciaOptions={
           assistenciaOptions
         }
+        tipoSeguro={tipoSeguro}
         onClose={
           closeModal
         }

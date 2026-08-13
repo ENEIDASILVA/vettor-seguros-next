@@ -119,6 +119,8 @@ export type CotacaoSeguradoraActionInput = {
 
   arquivoPdfTipo: string | null;
   
+  dadosEspecificos: Record<string, unknown>;
+
   recomendada: boolean;
 
   ordemExibicao: number;
@@ -366,7 +368,8 @@ function prepararDados(
         input.arquivoPdfTipo,
       ),
 
-    dados_especificos: {},
+    dados_especificos:
+      input.dadosEspecificos ?? {},
 
     recomendada:
       input.recomendada,

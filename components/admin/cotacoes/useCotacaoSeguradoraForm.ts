@@ -275,6 +275,9 @@ export default function useCotacaoSeguradoraForm({
       arquivoPdfTipo:
         form.arquivoPdfTipo,
 
+      dadosEspecificos:
+        form.dadosEspecificos,
+
       recomendada:
         form.recomendada,
 

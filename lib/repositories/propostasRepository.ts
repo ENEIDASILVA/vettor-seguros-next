@@ -90,6 +90,7 @@ Promise<PropostaLista[]> {
           id,
           premio_total,
           status,
+          arquivo_pdf_path,
           created_at,
 
           cliente:clientes(
@@ -527,7 +528,7 @@ Promise<PropostaLista[]> {
           "-",
 
           arquivoPdfPath:
-          item.arquivo_pdf_path,
+          item.arquivo_pdf_path ?? null,
 
 
         /*
@@ -539,11 +540,20 @@ Promise<PropostaLista[]> {
           melhorPremio,
 
         status:
-        mapaApolices.has(item.id)
-          ? "Convertida em Apólice"
-          : item.arquivo_pdf_path
-            ? "Enviada ao Cliente"
-            : "Em elaboração",
+          mapaApolices.has(
+            String(
+              item.id,
+            ),
+          )
+            ? "Convertida em Apólice"
+            : (
+                item.status ===
+                  "Enviada para o cliente" ||
+                item.status ===
+                  "Enviada ao Cliente"
+              )
+              ? "Enviada para o cliente"
+              : "Em elaboração",
 
         possuiApolice:
           mapaApolices.has(

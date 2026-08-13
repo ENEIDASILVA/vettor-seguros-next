@@ -38,6 +38,12 @@ export type ApoliceDetalhe = {
 
   observacoes: string | null;
   status: string;
+
+  arquivoPdfPath: string | null;
+  arquivoPdfNome: string | null;
+  arquivoPdfTamanho: number | null;
+  arquivoPdfTipo: string | null;
+  arquivoPdfUrl: string | null;
 };
 
 
@@ -185,6 +191,10 @@ export async function buscarApolice(
       comissao_valor,
       observacoes,
       status,
+      arquivo_pdf_path,
+      arquivo_pdf_nome,
+      arquivo_pdf_tamanho,
+      arquivo_pdf_tipo,
 
       cliente:clientes!apolices_cliente_id_fkey(nome),
 
@@ -215,6 +225,22 @@ export async function buscarApolice(
     Array.isArray(propostaRelacionada)
       ? propostaRelacionada[0]?.numero_proposta
       : propostaRelacionada?.numero_proposta;
+
+  let arquivoPdfUrl: string | null = null;
+
+  if (data.arquivo_pdf_path) {
+    const { data: signedData } =
+      await supabase.storage
+        .from("apolices-pdf")
+        .createSignedUrl(
+          data.arquivo_pdf_path,
+          60 * 60,
+        );
+
+    arquivoPdfUrl =
+      signedData?.signedUrl ??
+      null;
+  }
 
   return {
     id:
@@ -269,6 +295,20 @@ export async function buscarApolice(
 
     status:
       data.status,
+
+    arquivoPdfPath:
+      data.arquivo_pdf_path ?? null,
+
+    arquivoPdfNome:
+      data.arquivo_pdf_nome ?? null,
+
+    arquivoPdfTamanho:
+      data.arquivo_pdf_tamanho ?? null,
+
+    arquivoPdfTipo:
+      data.arquivo_pdf_tipo ?? null,
+
+    arquivoPdfUrl,
   };
 }
 

@@ -30,6 +30,8 @@ type Props = {
   assistenciaOptions:
     CotacaoSeguradoraSelectOption[];
 
+  tipoSeguro: string;
+
   onClose: () => void;
 };
 
@@ -44,6 +46,7 @@ export default function CotacaoSeguradoraModal({
   tiposCasco,
   carroReservaOptions,
   assistenciaOptions,
+  tipoSeguro,
   onClose,
 }: Props) {
   const seguradoraNome =
@@ -90,6 +93,7 @@ export default function CotacaoSeguradoraModal({
         assistenciaOptions={
           assistenciaOptions
         }
+        tipoSeguro={tipoSeguro}
         onCancel={onClose}
         onSaved={onClose}
       />

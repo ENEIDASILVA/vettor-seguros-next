@@ -8,37 +8,53 @@ type Props = {
   propostas: PropostaLista[];
 };
 
-function moeda(valor: number | null) {
-  if (valor === null || valor === undefined) {
+function moeda(
+  valor: number | null,
+) {
+  if (
+    valor === null ||
+    valor === undefined
+  ) {
     return "-";
   }
 
-  return valor.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
+  return valor.toLocaleString(
+    "pt-BR",
+    {
+      style: "currency",
+      currency: "BRL",
+    },
+  );
 }
 
 function obterSituacao(
   proposta: PropostaLista,
 ) {
-  if (proposta.possuiApolice) {
+  if (
+    proposta.possuiApolice
+  ) {
     return "Convertida em Apólice";
   }
 
   if (
-    "arquivoPdfPath" in proposta &&
-    (proposta as any).arquivoPdfPath
+    proposta.status ===
+      "Enviada para o cliente" ||
+    proposta.status ===
+      "Enviada ao Cliente"
   ) {
-    return "Enviada ao Cliente";
+    return "Enviada para o cliente";
   }
 
   return "Em elaboração";
 }
 
-function statusClass(status: string) {
-  switch (status) {
-    case "Enviada ao Cliente":
+function statusClass(
+  status: string,
+) {
+  switch (
+    status
+  ) {
+    case "Enviada para o cliente":
       return "bg-blue-100 text-blue-700";
 
     case "Convertida em Apólice":
@@ -52,7 +68,9 @@ function statusClass(status: string) {
 export default function PropostaTable({
   propostas,
 }: Props) {
-  if (propostas.length === 0) {
+  if (
+    propostas.length === 0
+  ) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 p-10 text-center">
         Nenhuma proposta cadastrada.
@@ -92,62 +110,84 @@ export default function PropostaTable({
         </thead>
 
         <tbody>
-          {propostas.map((proposta) => {
-            const situacao =
-              obterSituacao(proposta);
+          {propostas.map(
+            (
+              proposta,
+            ) => {
+              const situacao =
+                obterSituacao(
+                  proposta,
+                );
 
-            return (
-              <tr
-                key={proposta.id}
-                className="border-t border-slate-100"
-              >
-                <td className="px-4 py-4">
-                  <div className="truncate font-medium">
-                    {proposta.cliente}
-                  </div>
-                </td>
+              return (
+                <tr
+                  key={
+                    proposta.id
+                  }
+                  className="border-t border-slate-100"
+                >
+                  <td className="px-4 py-4">
+                    <div className="truncate font-medium">
+                      {
+                        proposta.cliente
+                      }
+                    </div>
+                  </td>
 
-                <td className="px-4 py-4">
-                  <div className="text-sm leading-6">
-                    {proposta.seguradoras.length
-                      ? proposta.seguradoras.join(
-                          " • ",
-                        )
-                      : "-"}
-                  </div>
-                </td>
+                  <td className="px-4 py-4">
+                    <div className="text-sm leading-6">
+                      {proposta
+                        .seguradoras
+                        .length
+                        ? proposta.seguradoras.join(
+                            " • ",
+                          )
+                        : "-"}
+                    </div>
+                  </td>
 
-                <td className="px-4 py-4">
-                  {proposta.tipoSeguro}
-                </td>
+                  <td className="px-4 py-4">
+                    {
+                      proposta.tipoSeguro
+                    }
+                  </td>
 
-                <td className="px-4 py-4 font-semibold">
-                  {moeda(
-                    proposta.melhorPremio ??
-                      proposta.premioTotal,
-                  )}
-                </td>
+                  <td className="px-4 py-4 font-semibold">
+                    {moeda(
+                      proposta.melhorPremio ??
+                        proposta.premioTotal,
+                    )}
+                  </td>
 
-                <td className="px-4 py-4">
-                  <span
-                    className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${statusClass(
-                      situacao,
-                    )}`}
-                  >
-                    {situacao}
-                  </span>
-                </td>
+                  <td className="px-4 py-4">
+                    <span
+                      className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${statusClass(
+                        situacao,
+                      )}`}
+                    >
+                      {
+                        situacao
+                      }
+                    </span>
+                  </td>
 
-                <td className="px-4 py-4">
-              <PropostaActions
-                id={proposta.id}
-                possuiApolice={proposta.possuiApolice}
-                apoliceId={proposta.apoliceId}
-                />
-                </td>
-              </tr>
-            );
-          })}
+                  <td className="px-4 py-4">
+                    <PropostaActions
+                      id={
+                        proposta.id
+                      }
+                      possuiApolice={
+                        proposta.possuiApolice
+                      }
+                      apoliceId={
+                        proposta.apoliceId
+                      }
+                    />
+                  </td>
+                </tr>
+              );
+            },
+          )}
         </tbody>
       </table>
     </div>

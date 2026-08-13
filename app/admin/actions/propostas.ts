@@ -18,6 +18,47 @@ import {
 import { gerarPdfDaProposta } from "@/lib/services/propostasPdfService";
 
 
+async function garantirPropostaEditavel(
+  supabase: Awaited<
+    ReturnType<
+      typeof createClient
+    >
+  >,
+  propostaId: string,
+) {
+  if (!propostaId) {
+    throw new Error(
+      "Proposta não informada.",
+    );
+  }
+
+  const {
+    data: apolice,
+    error,
+  } =
+    await supabase
+      .from("apolices")
+      .select("id")
+      .eq(
+        "proposta_id",
+        propostaId,
+      )
+      .maybeSingle();
+
+  if (error) {
+    throw new Error(
+      `Não foi possível verificar a situação da proposta: ${error.message}`,
+    );
+  }
+
+  if (apolice) {
+    throw new Error(
+      "Esta proposta já foi convertida em apólice e não pode mais ser editada ou excluída.",
+    );
+  }
+}
+
+
 export async function salvarProposta(
   formData: FormData
 ) {
@@ -144,6 +185,11 @@ export async function excluirProposta(
   const supabase =
     await createClient();
 
+  await garantirPropostaEditavel(
+    supabase,
+    id,
+  );
+
 
   const { error } =
     await supabase
@@ -187,6 +233,11 @@ export async function atualizarProposta(
     String(
       formData.get("id")
     );
+
+  await garantirPropostaEditavel(
+    supabase,
+    id,
+  );
 
 
 
@@ -947,6 +998,50 @@ export async function prepararEnvioWhatsAppPropostaAction(
         mensagem,
       )}`;
 
+    /*
+     * O sistema considera a proposta enviada
+     * quando o fluxo "Enviar por WhatsApp"
+     * é acionado com sucesso.
+     *
+     * Propostas já convertidas em apólice
+     * não têm o status alterado.
+     */
+    const {
+      error: statusError,
+    } =
+      await supabase
+        .from("propostas")
+        .update({
+          status:
+            "Enviada para o cliente",
+
+          updated_at:
+            new Date()
+              .toISOString(),
+        })
+        .eq(
+          "id",
+          propostaId,
+        )
+        .neq(
+          "status",
+          "Convertida em Apólice",
+        );
+
+    if (statusError) {
+      throw new Error(
+        `A mensagem foi preparada, mas não foi possível atualizar o status da proposta: ${statusError.message}`,
+      );
+    }
+
+    revalidatePath(
+      "/admin/propostas",
+    );
+
+    revalidatePath(
+      `/admin/propostas/${propostaId}/workspace`,
+    );
+
     return {
       success:
         true as const,
@@ -1038,6 +1133,11 @@ export async function salvarEdicaoPropostaAction(
     }
 
     const supabase = await createClient();
+
+    await garantirPropostaEditavel(
+      supabase,
+      propostaId,
+    );
 
     const { data: cotacoes, error: cotacoesError } = await supabase
       .from("cotacoes_seguradoras")

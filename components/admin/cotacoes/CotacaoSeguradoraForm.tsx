@@ -37,6 +37,88 @@ export type CotacaoSeguradoraSelectOption = {
 };
 
 
+
+export type CoberturaResidencial = {
+  contratada: boolean;
+  lmi: number | null;
+  franquia: string;
+};
+
+export type DadosResidencial = {
+  coberturas: {
+    incendio: CoberturaResidencial;
+    danosEletricos: CoberturaResidencial;
+    vendaval: CoberturaResidencial;
+    alagamento: CoberturaResidencial;
+    rouboFurto: CoberturaResidencial;
+    quebraVidros: CoberturaResidencial;
+    rcFamiliar: CoberturaResidencial;
+    perdaAluguel: CoberturaResidencial;
+    outras: CoberturaResidencial;
+  };
+  outrasCoberturasDescricao: string;
+  assistencias: {
+    plano: string;
+    chaveiro: boolean;
+    eletricista: boolean;
+    encanador: boolean;
+    vidraceiro: boolean;
+    desentupimento: boolean;
+    coberturaTelhado: boolean;
+    coberturaPortasJanelas: boolean;
+    limpeza: boolean;
+    guardaResidencia: boolean;
+    transferenciaMoveis: boolean;
+    hospedagem: boolean;
+    outros: boolean;
+    outrosDescricao: string;
+  };
+};
+
+export type DadosEspecificosForm = {
+  residencial?: DadosResidencial;
+  [key: string]: unknown;
+};
+
+export function criarDadosResidencialVazios(): DadosResidencial {
+  const cobertura = (): CoberturaResidencial => ({
+    contratada: false,
+    lmi: null,
+    franquia: "",
+  });
+
+  return {
+    coberturas: {
+      incendio: cobertura(),
+      danosEletricos: cobertura(),
+      vendaval: cobertura(),
+      alagamento: cobertura(),
+      rouboFurto: cobertura(),
+      quebraVidros: cobertura(),
+      rcFamiliar: cobertura(),
+      perdaAluguel: cobertura(),
+      outras: cobertura(),
+    },
+    outrasCoberturasDescricao: "",
+    assistencias: {
+      plano: "",
+      chaveiro: false,
+      eletricista: false,
+      encanador: false,
+      vidraceiro: false,
+      desentupimento: false,
+      coberturaTelhado: false,
+      coberturaPortasJanelas: false,
+      limpeza: false,
+      guardaResidencia: false,
+      transferenciaMoveis: false,
+      hospedagem: false,
+      outros: false,
+      outrosDescricao: "",
+    },
+  };
+}
+
 export type CotacaoSeguradoraFormData = {
   id?: string;
 
@@ -147,6 +229,8 @@ export type CotacaoSeguradoraFormData = {
   recomendada: boolean;
 
   ordemExibicao: number;
+
+  dadosEspecificos: DadosEspecificosForm;
 };
 
 
@@ -169,6 +253,8 @@ type Props = {
 
   assistenciaOptions:
     CotacaoSeguradoraSelectOption[];
+
+  tipoSeguro: string;
 
   onCancel: () => void;
 
@@ -275,6 +361,7 @@ export default function CotacaoSeguradoraForm({
   tiposCasco,
   carroReservaOptions,
   assistenciaOptions,
+  tipoSeguro,
   onCancel,
   onSaved,
 }: Props) {
@@ -366,6 +453,7 @@ export default function CotacaoSeguradoraForm({
           seguradoras={seguradoras}
           statusOptions={statusOptions}
           tiposCotacao={tiposCotacao}
+          tipoSeguro={tipoSeguro}
         />
       );
     }
@@ -391,6 +479,7 @@ export default function CotacaoSeguradoraForm({
       form={form}
       setValue={setValue}
       tiposCasco={tiposCasco}
+      tipoSeguro={tipoSeguro}
     />
   );
 }
@@ -405,6 +494,7 @@ if (
       setValue={setValue}
       carroReservaOptions={carroReservaOptions}
       assistenciaOptions={assistenciaOptions}
+      tipoSeguro={tipoSeguro}
     />
   );
 }
