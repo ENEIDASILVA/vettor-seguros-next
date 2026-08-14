@@ -22,6 +22,7 @@ export type Cliente = {
   inativado_em: string | null;
   created_at: string;
   updated_at: string;
+  produtosVigentes: string[];
 };
 
 export type NovoCliente = {
@@ -64,13 +65,96 @@ export async function listarClientes(search?: string) {
     );
   }
 
-  const { data, error } = await query;
+  const hoje = new Date();
+  const dataHoje = [
+    hoje.getFullYear(),
+    String(hoje.getMonth() + 1).padStart(2, "0"),
+    String(hoje.getDate()).padStart(2, "0"),
+  ].join("-");
 
-  if (error) {
-    throw new Error(`Não foi possível listar os clientes: ${error.message}`);
+  const [
+    clientesResponse,
+    apolicesResponse,
+  ] = await Promise.all([
+    query,
+    supabase
+      .from("apolices")
+      .select(`
+        cliente_id,
+        inicio_vigencia,
+        fim_vigencia,
+        status,
+        tipo_seguro:tipos_seguro!apolices_tipo_seguro_id_fkey(nome)
+      `)
+      .lte("inicio_vigencia", dataHoje)
+      .gte("fim_vigencia", dataHoje),
+  ]);
+
+  if (clientesResponse.error) {
+    throw new Error(
+      `Não foi possível listar os clientes: ${clientesResponse.error.message}`
+    );
   }
 
-  return (data ?? []) as Cliente[];
+  if (apolicesResponse.error) {
+    throw new Error(
+      `Não foi possível consultar os produtos vigentes dos clientes: ${apolicesResponse.error.message}`
+    );
+  }
+
+  const produtosPorCliente = new Map<
+    string,
+    Set<string>
+  >();
+
+  for (const item of apolicesResponse.data ?? []) {
+    const relacionamento =
+      item.tipo_seguro as
+        | { nome?: string | null }
+        | { nome?: string | null }[]
+        | null;
+
+    const nomeProduto =
+      Array.isArray(relacionamento)
+        ? relacionamento[0]?.nome
+        : relacionamento?.nome;
+
+    if (!nomeProduto) {
+      continue;
+    }
+
+    const produtos =
+      produtosPorCliente.get(
+        item.cliente_id
+      ) ?? new Set<string>();
+
+    produtos.add(nomeProduto);
+
+    produtosPorCliente.set(
+      item.cliente_id,
+      produtos
+    );
+  }
+
+  return (clientesResponse.data ?? []).map(
+    (cliente) => ({
+      ...cliente,
+      produtosVigentes:
+        Array.from(
+          produtosPorCliente.get(
+            cliente.id
+          ) ?? []
+        ).sort((a, b) =>
+          a.localeCompare(
+            b,
+            "pt-BR",
+            {
+              sensitivity: "base",
+            }
+          )
+        ),
+    })
+  ) as Cliente[];
 }
 
 export async function buscarCliente(id: string) {
@@ -86,7 +170,14 @@ export async function buscarCliente(id: string) {
     throw new Error(`Não foi possível buscar o cliente: ${error.message}`);
   }
 
-  return data as Cliente | null;
+  if (!data) {
+    return null;
+  }
+
+  return {
+    ...data,
+    produtosVigentes: [],
+  } as Cliente;
 }
 
 export async function inserirCliente(dados: NovoCliente) {

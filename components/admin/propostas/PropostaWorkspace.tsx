@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, Check, Download, ExternalLink, FilePlus2, FileText, MessageCircle, Pencil, Save, ShieldCheck, User } from "lucide-react";
+import { ArrowLeft, CalendarDays, Check, Download, ExternalLink, FilePlus2, FileText, Pencil, Save, ShieldCheck, User } from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
-import { gerarPdfPropostaAction, prepararEnvioWhatsAppPropostaAction, salvarEdicaoPropostaAction } from "@/app/admin/actions/propostas";
+import { gerarPdfPropostaAction, salvarEdicaoPropostaAction } from "@/app/admin/actions/propostas";
 import { abrirPdfCotacaoSeguradoraAction } from "@/app/admin/actions/cotacoesSeguradorasArquivos";
 
 type Props = {
@@ -45,6 +45,496 @@ function tamanhoArquivo(bytes?: number | null) {
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+
+type CoberturaResidencial = {
+  contratada?: boolean;
+  lmi?: number | null;
+  franquia?: string | null;
+};
+
+const ROTULOS_COBERTURAS_RESIDENCIAIS: Record<string, string> = {
+  incendio: "Incêndio, explosão, implosão, fumaça e queda de aeronave",
+  danosEletricos: "Danos elétricos",
+  vendaval: "Vendaval / granizo / impacto de veículos",
+  alagamento: "Alagamento",
+  rouboFurto: "Roubo e furto",
+  quebraVidros: "Quebra de vidros",
+  rcFamiliar: "Responsabilidade Civil Familiar",
+  perdaAluguel: "Perda / pagamento de aluguel",
+  outras: "Outras coberturas",
+};
+
+const ROTULOS_ASSISTENCIAS_RESIDENCIAIS: Record<string, string> = {
+  chaveiro: "Chaveiro",
+  eletricista: "Eletricista",
+  encanador: "Encanador",
+  vidraceiro: "Vidraceiro",
+  desentupimento: "Desentupimento",
+  coberturaTelhado: "Cobertura provisória de telhado",
+  coberturaPortasJanelas: "Cobertura provisória de portas e janelas",
+  limpeza: "Limpeza",
+  guardaResidencia: "Guarda da residência",
+  transferenciaMoveis: "Transferência de móveis",
+  hospedagem: "Hospedagem",
+};
+
+function obterTipoSeguroNome(tipoSeguro: any) {
+  return String(
+    tipoSeguro?.nome ??
+      tipoSeguro?.[0]?.nome ??
+      "",
+  )
+    .trim()
+    .toLowerCase();
+}
+
+function obterDadosResidenciais(cotacao: any) {
+  const dados =
+    cotacao?.dados_especificos ??
+    cotacao?.dadosEspecificos ??
+    {};
+
+  return (
+    dados?.residencial ??
+    {}
+  );
+}
+
+function CampoResumo({
+  titulo,
+  valor,
+}: {
+  titulo: string;
+  valor: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl bg-white p-3">
+      <span className="text-slate-500">
+        {titulo}
+      </span>
+
+      <p className="mt-1 font-bold text-slate-800">
+        {valor}
+      </p>
+    </div>
+  );
+}
+
+function DetalhesResidencial({
+  cotacao,
+}: {
+  cotacao: any;
+}) {
+  const residencial =
+    obterDadosResidenciais(cotacao);
+
+  const coberturas =
+    residencial?.coberturas ?? {};
+
+  const coberturasContratadas =
+    Object.entries(coberturas)
+      .filter(
+        ([, valor]) =>
+          Boolean(
+            (valor as CoberturaResidencial)
+              ?.contratada,
+          ),
+      )
+      .map(([chave, valor]) => ({
+        chave,
+        rotulo:
+          ROTULOS_COBERTURAS_RESIDENCIAIS[
+            chave
+          ] ?? chave,
+        cobertura:
+          valor as CoberturaResidencial,
+      }));
+
+  const assistencias =
+    residencial?.assistencias ?? {};
+
+  const servicosAssistencia =
+    Object.entries(
+      ROTULOS_ASSISTENCIAS_RESIDENCIAIS,
+    )
+      .filter(
+        ([chave]) =>
+          Boolean(
+            assistencias?.[chave],
+          ),
+      )
+      .map(([, rotulo]) => rotulo);
+
+  if (
+    assistencias?.outros &&
+    assistencias?.outrosDescricao
+  ) {
+    servicosAssistencia.push(
+      String(
+        assistencias.outrosDescricao,
+      ),
+    );
+  }
+
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <CampoResumo
+          titulo="Prêmio Total"
+          valor={moeda(
+            cotacao.premio_total,
+          )}
+        />
+
+        <CampoResumo
+          titulo="Prêmio Líquido"
+          valor={moeda(
+            cotacao.premio_liquido,
+          )}
+        />
+
+        <CampoResumo
+          titulo="Forma de Pagamento"
+          valor={
+            cotacao.forma_pagamento ??
+            "-"
+          }
+        />
+
+        <CampoResumo
+          titulo="Parcelamento"
+          valor={
+            cotacao.parcelamento ??
+            (cotacao.parcela_maxima
+              ? `Até ${cotacao.parcela_maxima}x`
+              : "-")
+          }
+        />
+
+        <CampoResumo
+          titulo="Plano de Assistência"
+          valor={
+            assistencias?.plano ||
+            cotacao.assistencia ||
+            "-"
+          }
+        />
+
+        <CampoResumo
+          titulo="Validade da Cotação"
+          valor={
+            cotacao.validade ?? "-"
+          }
+        />
+      </div>
+
+      <div className="mt-5 rounded-xl border border-slate-200 bg-white">
+        <div className="border-b border-slate-100 px-4 py-3">
+          <h4 className="font-bold text-slate-800">
+            Coberturas contratadas
+          </h4>
+        </div>
+
+        {coberturasContratadas.length ===
+        0 ? (
+          <div className="px-4 py-4 text-sm text-slate-500">
+            Nenhuma cobertura detalhada foi
+            registrada nesta cotação.
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {coberturasContratadas.map(
+              ({
+                chave,
+                rotulo,
+                cobertura,
+              }) => (
+                <div
+                  key={chave}
+                  className="grid gap-3 px-4 py-3 text-sm sm:grid-cols-[1fr_auto_auto] sm:items-center"
+                >
+                  <div>
+                    <p className="font-semibold text-slate-800">
+                      {rotulo}
+                    </p>
+
+                    {chave === "outras" &&
+                      residencial
+                        ?.outrasCoberturasDescricao && (
+                        <p className="mt-1 text-xs text-slate-500">
+                          {
+                            residencial
+                              .outrasCoberturasDescricao
+                          }
+                        </p>
+                      )}
+                  </div>
+
+                  <div className="sm:text-right">
+                    <span className="text-xs text-slate-500">
+                      LMI
+                    </span>
+                    <p className="font-bold text-slate-800">
+                      {moeda(
+                        cobertura.lmi,
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="sm:min-w-32 sm:text-right">
+                    <span className="text-xs text-slate-500">
+                      Franquia / POS
+                    </span>
+                    <p className="font-semibold text-slate-700">
+                      {cobertura.franquia?.trim() ||
+                        "-"}
+                    </p>
+                  </div>
+                </div>
+              ),
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-4">
+        <h4 className="font-bold text-slate-800">
+          Assistências
+        </h4>
+
+        {servicosAssistencia.length ===
+        0 ? (
+          <p className="mt-2 text-sm text-slate-500">
+            Nenhum serviço de assistência
+            detalhado foi registrado.
+          </p>
+        ) : (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {servicosAssistencia.map(
+              (servico) => (
+                <span
+                  key={servico}
+                  className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-[#0A2F5A]"
+                >
+                  {servico}
+                </span>
+              ),
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+function DetalhesAuto({
+  cotacao,
+}: {
+  cotacao: any;
+}) {
+  const coberturas = [
+    {
+      rotulo:
+        "Danos materiais a terceiros",
+      valor:
+        cotacao.danos_materiais,
+    },
+    {
+      rotulo:
+        "Danos corporais a terceiros",
+      valor:
+        cotacao.danos_corporais,
+    },
+    {
+      rotulo:
+        "Danos morais",
+      valor:
+        cotacao.danos_morais,
+    },
+    {
+      rotulo:
+        "APP Morte",
+      valor:
+        cotacao.app_morte,
+    },
+    {
+      rotulo:
+        "APP Invalidez",
+      valor:
+        cotacao.app_invalidez,
+    },
+    {
+      rotulo:
+        "APP Despesas Médicas",
+      valor:
+        cotacao.app_despesas_medicas,
+    },
+  ].filter(
+    (item) =>
+      item.valor !== null &&
+      item.valor !== undefined,
+  );
+
+  const assistencias = [
+    cotacao.assistencia,
+    cotacao.assistencia_24h
+      ? "Assistência 24h"
+      : null,
+    cotacao.carro_reserva
+      ? `Carro reserva: ${cotacao.carro_reserva}`
+      : null,
+    cotacao.quilometragem_guincho
+      ? `Guincho: ${cotacao.quilometragem_guincho}`
+      : null,
+    cotacao.cobertura_vidros
+      ? "Vidros"
+      : null,
+    cotacao.cobertura_farois
+      ? "Faróis"
+      : null,
+    cotacao.cobertura_lanternas
+      ? "Lanternas"
+      : null,
+    cotacao.cobertura_retrovisores
+      ? "Retrovisores"
+      : null,
+    cotacao.chaveiro
+      ? "Chaveiro"
+      : null,
+    cotacao.taxi
+      ? "Táxi"
+      : null,
+    cotacao.hotel
+      ? "Hotel"
+      : null,
+  ].filter(Boolean) as string[];
+
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <CampoResumo
+          titulo="Prêmio Total"
+          valor={moeda(
+            cotacao.premio_total,
+          )}
+        />
+
+        <CampoResumo
+          titulo="Tipo de Casco"
+          valor={
+            cotacao.tipo_casco ?? "-"
+          }
+        />
+
+        <CampoResumo
+          titulo="FIPE"
+          valor={
+            cotacao.percentual_fipe !=
+              null
+              ? `${Number(
+                  cotacao.percentual_fipe,
+                ).toLocaleString(
+                  "pt-BR",
+                )}%`
+              : "-"
+          }
+        />
+
+        <CampoResumo
+          titulo="Franquia Normal"
+          valor={moeda(
+            cotacao.franquia_normal,
+          )}
+        />
+
+        <CampoResumo
+          titulo="Franquia Reduzida"
+          valor={moeda(
+            cotacao.franquia_reduzida,
+          )}
+        />
+
+        <CampoResumo
+          titulo="Franquia Majorada"
+          valor={moeda(
+            cotacao.franquia_majorada,
+          )}
+        />
+
+        <CampoResumo
+          titulo="Forma de Pagamento"
+          valor={
+            cotacao.forma_pagamento ??
+            "-"
+          }
+        />
+
+        <CampoResumo
+          titulo="Parcelamento"
+          valor={
+            cotacao.parcelamento ??
+            (cotacao.parcela_maxima
+              ? `Até ${cotacao.parcela_maxima}x`
+              : "-")
+          }
+        />
+      </div>
+
+      {coberturas.length > 0 && (
+        <div className="mt-5 rounded-xl border border-slate-200 bg-white">
+          <div className="border-b border-slate-100 px-4 py-3">
+            <h4 className="font-bold text-slate-800">
+              Coberturas
+            </h4>
+          </div>
+
+          <div className="divide-y divide-slate-100">
+            {coberturas.map(
+              (item) => (
+                <div
+                  key={item.rotulo}
+                  className="flex items-center justify-between gap-4 px-4 py-3 text-sm"
+                >
+                  <span className="text-slate-600">
+                    {item.rotulo}
+                  </span>
+
+                  <strong className="text-slate-800">
+                    {moeda(
+                      item.valor,
+                    )}
+                  </strong>
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+      )}
+
+      {assistencias.length > 0 && (
+        <div className="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-4">
+          <h4 className="font-bold text-slate-800">
+            Assistências e benefícios
+          </h4>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {assistencias.map(
+              (item) => (
+                <span
+                  key={item}
+                  className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-[#0A2F5A]"
+                >
+                  {item}
+                </span>
+              ),
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function PropostaWorkspace({ propostaId, cotacaoId, modoEdicao = false, dados }: Props) {
   const proposta = dados.proposta;
   const cliente = dados.cotacao?.cliente;
@@ -61,7 +551,6 @@ export default function PropostaWorkspace({ propostaId, cotacaoId, modoEdicao = 
   const [erro, setErro] = useState<string | null>(null);
   const [mensagem, setMensagem] = useState<string | null>(null);
   const [pdfCotacaoAbrindo, setPdfCotacaoAbrindo] = useState<string | null>(null);
-  const [whatsappAbrindo, setWhatsappAbrindo] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const seguradorasExibidas = useMemo(() => {
@@ -94,82 +583,6 @@ export default function PropostaWorkspace({ propostaId, cotacaoId, modoEdicao = 
       setErro(error instanceof Error ? error.message : "Não foi possível abrir o PDF da cotação.");
     } finally {
       setPdfCotacaoAbrindo(null);
-    }
-  }
-
-  async function enviarPorWhatsApp() {
-    if (!propostaId) {
-      setErro(
-        "Proposta não identificada.",
-      );
-      return;
-    }
-
-    setErro(null);
-    setMensagem(null);
-    setWhatsappAbrindo(true);
-
-    const novaJanela =
-      window.open(
-        "",
-        "_blank",
-      );
-
-    try {
-      const resultado =
-        await prepararEnvioWhatsAppPropostaAction(
-          propostaId,
-        );
-
-      if (
-        !resultado.success
-      ) {
-        novaJanela?.close();
-
-        setErro(
-          resultado.message,
-        );
-
-        return;
-      }
-
-      if (
-        !resultado.whatsappUrl
-      ) {
-        novaJanela?.close();
-
-        setErro(
-          "Não foi possível montar o link do WhatsApp.",
-        );
-
-        return;
-      }
-
-      if (novaJanela) {
-        novaJanela.location.href =
-          resultado.whatsappUrl;
-      } else {
-        window.location.href =
-          resultado.whatsappUrl;
-      }
-
-      setMensagem(
-        resultado.quantidadeCotacoes > 0
-          ? `WhatsApp preparado com o PDF da Vettor e ${resultado.quantidadeCotacoes} cotação(ões) de seguradora.`
-          : "WhatsApp preparado com o PDF da proposta.",
-      );
-    } catch (error) {
-      novaJanela?.close();
-
-      setErro(
-        error instanceof Error
-          ? error.message
-          : "Não foi possível abrir o WhatsApp.",
-      );
-    } finally {
-      setWhatsappAbrindo(
-        false,
-      );
     }
   }
 
@@ -286,23 +699,73 @@ export default function PropostaWorkspace({ propostaId, cotacaoId, modoEdicao = 
                     ) : <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Na proposta</span>}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="rounded-xl bg-white p-3"><span className="text-slate-500">Prêmio Total</span><p className="mt-1 font-bold text-slate-800">{moeda(cotacao.premio_total)}</p></div>
-                    <div className="rounded-xl bg-white p-3"><span className="text-slate-500">Franquia</span><p className="mt-1 font-bold text-slate-800">{moeda(cotacao.franquia_normal)}</p></div>
-                    <div className="rounded-xl bg-white p-3"><span className="text-slate-500">FIPE</span><p className="mt-1 font-bold text-slate-800">{cotacao.percentual_fipe != null ? `${Number(cotacao.percentual_fipe).toLocaleString("pt-BR")}%` : "-"}</p></div>
-                    <div className="rounded-xl bg-white p-3"><span className="text-slate-500">Assistência</span><p className="mt-1 font-bold text-slate-800">{cotacao.assistencia || (cotacao.assistencia_24h ? "Assistência 24h" : "-")}</p></div>
-                    <div className="rounded-xl bg-white p-3"><span className="text-slate-500">Forma de Pagamento</span><p className="mt-1 font-bold text-slate-800">{cotacao.forma_pagamento ?? "-"}</p></div>
-                    <div className="rounded-xl bg-white p-3"><span className="text-slate-500">Parcelamento</span><p className="mt-1 font-bold text-slate-800">{cotacao.parcelamento ?? (cotacao.parcela_maxima ? `Até ${cotacao.parcela_maxima}x` : "-")}</p></div>
-                  </div>
+                  {obterTipoSeguroNome(tipoSeguro).includes(
+                    "residencial",
+                  ) ? (
+                    <DetalhesResidencial
+                      cotacao={cotacao}
+                    />
+                  ) : (
+                    <DetalhesAuto
+                      cotacao={cotacao}
+                    />
+                  )}
 
-                  {cotacao.arquivo_pdf_nome && (
+                  {cotacao.arquivo_pdf_path ? (
                     <div className="mt-5 flex flex-col gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex min-w-0 items-center gap-2"><FileText size={17} className="shrink-0 text-blue-700" /><span className="truncate text-sm font-medium text-blue-700">{cotacao.arquivo_pdf_nome}</span></div>
-                      <button type="button" disabled={pdfCotacaoAbrindo === id} onClick={() => abrirPdfCotacao(id)} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0A2F5A] px-4 py-2 text-sm font-semibold text-white hover:bg-[#082648] disabled:bg-slate-400">
-                        <ExternalLink size={16} /> {pdfCotacaoAbrindo === id ? "Abrindo..." : "Abrir cotação"}
+                      <div className="flex min-w-0 items-center gap-2">
+                        <FileText
+                          size={17}
+                          className="shrink-0 text-blue-700"
+                        />
+                        <span className="truncate text-sm font-medium text-blue-700">
+                          {cotacao.arquivo_pdf_nome ||
+                            "PDF da cotação"}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={
+                          pdfCotacaoAbrindo === id
+                        }
+                        onClick={() =>
+                          abrirPdfCotacao(id)
+                        }
+                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0A2F5A] px-4 py-2 text-sm font-semibold text-white hover:bg-[#082648] disabled:bg-slate-400"
+                      >
+                        <ExternalLink size={16} />
+                        {pdfCotacaoAbrindo === id
+                          ? "Abrindo..."
+                          : "Abrir cotação"}
                       </button>
                     </div>
-                  )}
+                  ) : cotacao.arquivo_pdf_nome ? (
+                    <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                      <div className="flex items-start gap-3">
+                        <FileText
+                          size={18}
+                          className="mt-0.5 shrink-0 text-amber-700"
+                        />
+
+                        <div className="min-w-0">
+                          <p className="font-semibold text-amber-800">
+                            PDF precisa ser reenviado
+                          </p>
+
+                          <p className="mt-1 truncate text-sm text-amber-700">
+                            {cotacao.arquivo_pdf_nome}
+                          </p>
+
+                          <p className="mt-1 text-xs text-amber-700/80">
+                            O nome do arquivo está registrado,
+                            mas o PDF não está vinculado ao
+                            armazenamento.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
                 </article>
               );
             })}
@@ -351,56 +814,7 @@ export default function PropostaWorkspace({ propostaId, cotacaoId, modoEdicao = 
             {!possuiPdf ? (
               <div className="p-8 text-center"><FileText size={38} className="mx-auto mb-3 text-slate-300" /><p className="font-semibold text-slate-700">Nenhum PDF foi gerado para esta proposta.</p></div>
             ) : (
-              <div className="p-6"><div className="flex flex-col gap-4 rounded-xl border border-green-200 bg-green-50 p-5 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><div className="flex items-center gap-2"><FileText size={19} className="shrink-0 text-green-700" /><p className="truncate font-bold text-green-800">{pdfNome ?? "Proposta.pdf"}</p></div><div className="mt-2 flex gap-4 text-sm text-green-700"><span>Documento da proposta</span>{tamanhoPdf && <span>{tamanhoPdf}</span>}</div></div>{pdfUrl && (
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={
-                        enviarPorWhatsApp
-                      }
-                      disabled={
-                        whatsappAbrindo
-                      }
-                      className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-wait disabled:bg-green-300"
-                    >
-                      <MessageCircle
-                        size={18}
-                      />
-
-                      {whatsappAbrindo
-                        ? "Preparando..."
-                        : "Enviar por WhatsApp"}
-                    </button>
-
-                    <a
-                      href={pdfUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl bg-[#0A2F5A] px-5 py-3 text-sm font-semibold text-white hover:bg-[#082648]"
-                    >
-                      <ExternalLink
-                        size={17}
-                      />
-
-                      Abrir PDF
-                    </a>
-
-                    <a
-                      href={pdfUrl}
-                      download={
-                        pdfNome ??
-                        undefined
-                      }
-                      className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                    >
-                      <Download
-                        size={17}
-                      />
-
-                      Baixar
-                    </a>
-                  </div>
-                )}</div></div>
+              <div className="p-6"><div className="flex flex-col gap-4 rounded-xl border border-green-200 bg-green-50 p-5 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><div className="flex items-center gap-2"><FileText size={19} className="shrink-0 text-green-700" /><p className="truncate font-bold text-green-800">{pdfNome ?? "Proposta.pdf"}</p></div><div className="mt-2 flex gap-4 text-sm text-green-700"><span>Documento da proposta</span>{tamanhoPdf && <span>{tamanhoPdf}</span>}</div></div>{pdfUrl && <div className="flex flex-wrap gap-2"><a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#0A2F5A] px-5 py-3 text-sm font-semibold text-white hover:bg-[#082648]"><ExternalLink size={17} /> Abrir PDF</a><a href={pdfUrl} download={pdfNome ?? undefined} className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"><Download size={17} /> Baixar</a></div>}</div></div>
             )}
           </section>
 

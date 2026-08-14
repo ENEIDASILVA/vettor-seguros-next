@@ -6,6 +6,12 @@ import ClienteEnderecoCard from "@/components/admin/clientes/ClienteEnderecoCard
 import ClienteObservacoesCard from "@/components/admin/clientes/ClienteObservacoesCard";
 import ClienteResumoCard from "@/components/admin/clientes/ClienteResumoCard";
 import ClienteTimeline from "@/components/admin/clientes/ClienteTimeline";
+import {
+  obterResumoApolicesCliente,
+} from "@/lib/repositories/apolicesRepository";
+import {
+  contarCotacoesPorCliente,
+} from "@/lib/repositories/cotacoesRepository";
 import { obterCliente } from "@/lib/services/clientesService";
 
 type Props = {
@@ -14,7 +20,9 @@ type Props = {
   }>;
 };
 
-export default async function ClientePage({ params }: Props) {
+export default async function ClientePage({
+  params,
+}: Props) {
   const { id } = await params;
 
   const cliente = await obterCliente(id);
@@ -23,11 +31,24 @@ export default async function ClientePage({ params }: Props) {
     notFound();
   }
 
+  const [
+    quantidadeCotacoes,
+    resumoApolices,
+  ] = await Promise.all([
+    contarCotacoesPorCliente(id),
+    obterResumoApolicesCliente(id),
+  ]);
+
   return (
     <div className="space-y-6">
       <ClienteHeader cliente={cliente} />
 
-      <ClienteResumoCard />
+      <ClienteResumoCard
+        clienteId={id}
+        cotacoes={quantidadeCotacoes}
+        apolices={resumoApolices.quantidade}
+        premioTotal={resumoApolices.premioTotal}
+      />
 
       <ClienteInfoCard cliente={cliente} />
 
@@ -38,8 +59,7 @@ export default async function ClientePage({ params }: Props) {
       <ClienteTimeline
         criadoEm={cliente.created_at}
         atualizadoEm={cliente.updated_at}
-       />
-
+      />
     </div>
   );
 }

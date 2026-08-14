@@ -309,9 +309,11 @@ export async function abrirPdfCotacaoSeguradoraAction(
         .from(
           "cotacoes_seguradoras",
         )
-        .select(
-          "arquivo_pdf_path",
-        )
+        .select(`
+          cotacao_id,
+          arquivo_pdf_path,
+          arquivo_pdf_nome
+        `)
         .eq(
           "id",
           cotacaoSeguradoraId,
@@ -324,12 +326,93 @@ export async function abrirPdfCotacaoSeguradoraAction(
       );
     }
 
-    if (
-      !registro?.arquivo_pdf_path
-    ) {
+    if (!registro) {
       throw new Error(
-        "Esta cotação não possui PDF anexado.",
+        "Cotação da seguradora não encontrada.",
       );
+    }
+
+    /*
+     * Os PDFs sempre são gravados no Storage no padrão:
+     * {cotacaoId}/{cotacaoSeguradoraId}.pdf
+     *
+     * Algumas cotações antigas podem ter o arquivo no bucket,
+     * mas o campo arquivo_pdf_path ter ficado vazio no banco.
+     * Nesse caso procuramos o arquivo pelo caminho padrão e
+     * reparamos o vínculo automaticamente.
+     */
+    let caminho =
+      registro.arquivo_pdf_path ??
+      null;
+
+    if (!caminho) {
+      const nomeArquivoStorage =
+        `${cotacaoSeguradoraId}.pdf`;
+
+      const {
+        data: arquivos,
+        error: listError,
+      } =
+        await supabase.storage
+          .from(BUCKET)
+          .list(
+            String(
+              registro.cotacao_id,
+            ),
+            {
+              search:
+                nomeArquivoStorage,
+              limit: 10,
+            },
+          );
+
+      if (listError) {
+        throw new Error(
+          `Não foi possível localizar o PDF anexado: ${listError.message}`,
+        );
+      }
+
+      const arquivoExiste =
+        (arquivos ?? []).some(
+          (arquivo) =>
+            arquivo.name ===
+            nomeArquivoStorage,
+        );
+
+      if (!arquivoExiste) {
+        throw new Error(
+          "Esta cotação não possui PDF anexado.",
+        );
+      }
+
+      caminho =
+        `${registro.cotacao_id}/${nomeArquivoStorage}`;
+
+      const {
+        error: repairError,
+      } =
+        await supabase
+          .from(
+            "cotacoes_seguradoras",
+          )
+          .update({
+            arquivo_pdf_path:
+              caminho,
+            arquivo_pdf_tipo:
+              "application/pdf",
+            updated_at:
+              new Date().toISOString(),
+          })
+          .eq(
+            "id",
+            cotacaoSeguradoraId,
+          );
+
+      if (repairError) {
+        throw new Error(
+          `O PDF foi encontrado, mas não foi possível corrigir o vínculo: ${repairError.message}`,
+        );
+      }
     }
 
     const {
@@ -339,7 +422,7 @@ export async function abrirPdfCotacaoSeguradoraAction(
       await supabase.storage
         .from(BUCKET)
         .createSignedUrl(
-          registro.arquivo_pdf_path,
+          caminho,
           300,
         );
 

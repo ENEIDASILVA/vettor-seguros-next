@@ -530,3 +530,36 @@ Promise<CotacaoStatus[]> {
     data ?? []
   ) as CotacaoStatus[];
 }
+
+export async function contarCotacoesPorCliente(
+  clienteId: string,
+): Promise<number> {
+  const supabase = await createClient();
+
+  const { count, error } = await supabase
+    .from("cotacoes")
+    .select("id", {
+      count: "exact",
+      head: true,
+    })
+    .eq("cliente_id", clienteId);
+
+  if (error) {
+    throw new Error(
+      `Não foi possível contar as cotações do cliente: ${error.message}`,
+    );
+  }
+
+  return count ?? 0;
+}
+
+export async function listarCotacoesPorCliente(
+  clienteId: string,
+): Promise<Cotacao[]> {
+  const todas = await listarCotacoes();
+
+  return todas.filter(
+    (cotacao) =>
+      cotacao.cliente_id === clienteId,
+  );
+}

@@ -460,3 +460,78 @@ export async function listarPropostasComApolice() {
 
   return data ?? [];
 }
+
+export type ApoliceClienteResumo = {
+  quantidade: number;
+  premioTotal: number;
+};
+
+export async function obterResumoApolicesCliente(
+  clienteId: string,
+): Promise<ApoliceClienteResumo> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("apolices")
+    .select("premio_total")
+    .eq("cliente_id", clienteId);
+
+  if (error) {
+    throw new Error(
+      `Não foi possível consultar as apólices do cliente: ${error.message}`,
+    );
+  }
+
+  const registros = data ?? [];
+
+  return {
+    quantidade: registros.length,
+    premioTotal: registros.reduce(
+      (total, item) =>
+        total + Number(item.premio_total ?? 0),
+      0,
+    ),
+  };
+}
+
+export async function listarApolicesPorCliente(
+  clienteId: string,
+): Promise<ApoliceLista[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("apolices")
+    .select(`
+      id,
+      numero_apolice,
+      inicio_vigencia,
+      fim_vigencia,
+      status,
+      cliente:clientes!apolices_cliente_id_fkey(nome),
+      seguradora:seguradoras!apolices_seguradora_id_fkey(nome),
+      tipo_seguro:tipos_seguro!apolices_tipo_seguro_id_fkey(nome)
+    `)
+    .eq("cliente_id", clienteId)
+    .order("fim_vigencia", {
+      ascending: true,
+    });
+
+  if (error) {
+    throw new Error(
+      `Não foi possível listar as apólices do cliente: ${error.message}`,
+    );
+  }
+
+  const rows = (data ?? []) as ApoliceRow[];
+
+  return rows.map((apolice) => ({
+    id: apolice.id,
+    cliente: obterNome(apolice.cliente),
+    seguradora: obterNome(apolice.seguradora),
+    tipoSeguro: obterNome(apolice.tipo_seguro),
+    numeroApolice: apolice.numero_apolice,
+    inicioVigencia: apolice.inicio_vigencia,
+    fimVigencia: apolice.fim_vigencia,
+    status: apolice.status,
+  }));
+}
