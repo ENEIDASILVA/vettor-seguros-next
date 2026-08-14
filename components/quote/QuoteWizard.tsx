@@ -106,6 +106,17 @@ section.scrollIntoView({
       return;
     }
 
+    /*
+     * A janela precisa ser aberta imediatamente no clique.
+     * Se esperarmos o fetch terminar, alguns navegadores
+     * interpretam window.open como pop-up e bloqueiam.
+     */
+    const whatsappWindow =
+      window.open(
+        "about:blank",
+        "_blank",
+      );
+
     try {
       setSending(true);
 
@@ -126,10 +137,27 @@ section.scrollIntoView({
         );
       }
 
-      const message = formatWhatsAppMessage(form);
-      const link = createWhatsAppLink(message);
+      const message =
+        formatWhatsAppMessage(
+          form,
+        );
 
-      window.open(link, "_blank");
+      const link =
+        createWhatsAppLink(
+          message,
+        );
+
+      if (whatsappWindow) {
+        whatsappWindow.location.href =
+          link;
+      } else {
+        /*
+         * Fallback para navegadores que bloquearam
+         * até mesmo a abertura síncrona da nova aba.
+         */
+        window.location.href =
+          link;
+      }
 
       setSuccessMessage(true);
 
@@ -140,6 +168,13 @@ section.scrollIntoView({
       }, 3000);
     } catch (error) {
       console.error(error);
+
+      if (
+        whatsappWindow &&
+        !whatsappWindow.closed
+      ) {
+        whatsappWindow.close();
+      }
 
       alert(
         "Não foi possível enviar sua cotação neste momento. Tente novamente em alguns instantes."
