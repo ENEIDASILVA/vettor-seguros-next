@@ -2,10 +2,13 @@ import BasePage from "@/components/admin/common/BasePage";
 import DashboardCards from "@/components/admin/dashboard/DashboardCards";
 import DashboardTrabalho from "@/components/admin/dashboard/DashboardTrabalho";
 
-import { obterDashboard } from "@/lib/services/dashboardService";
+import {
+  obterDashboard,
+} from "@/lib/services/dashboardService";
 
-export default async function AdminDashboardPage() {
-  const dashboard = await obterDashboard();
+export default async function AdminPage() {
+  const dashboard =
+    await obterDashboard();
 
   return (
     <BasePage
@@ -13,13 +16,25 @@ export default async function AdminDashboardPage() {
       description="Veja primeiro o que precisa da sua atenção hoje."
     >
       <div className="space-y-7">
-        <DashboardCards indicadores={dashboard.indicadores} />
+        <DashboardCards
+          indicadores={
+            dashboard.indicadores
+          }
+        />
 
         <DashboardTrabalho
-          emProcessoCotacao={dashboard.emProcessoCotacao}
-          aguardandoCliente={dashboard.aguardandoCliente}
-          apoliceAEmitir={dashboard.apoliceAEmitir}
-          renovacoes={dashboard.renovacoes}
+          emProcessoCotacao={
+            dashboard.emProcessoCotacao
+          }
+          propostasEmTratamento={
+            dashboard.propostasEmTratamento
+          }
+          apoliceAEmitir={
+            dashboard.apoliceAEmitir
+          }
+          renovacoes={
+            dashboard.renovacoes
+          }
         />
       </div>
     </BasePage>
