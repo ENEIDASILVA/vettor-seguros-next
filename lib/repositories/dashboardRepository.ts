@@ -2,6 +2,29 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 
+
+/*
+ * Tipos legados mantidos temporariamente para compatibilidade
+ * com componentes antigos do Dashboard que ainda existem no projeto.
+ * O Dashboard atual não depende desses componentes.
+ */
+export type DashboardUltimaCotacao = {
+  id: string;
+  cliente: string;
+  tipoSeguro: string;
+  status: string;
+  created_at: string;
+};
+
+export type DashboardUltimoCliente = {
+  id: string;
+  nome: string;
+  telefone: string | null;
+  cidade: string | null;
+  created_at: string;
+};
+
+
 export type DashboardIndicadores = {
   emProcessoCotacao: number;
   propostasEmTratamento: number;
