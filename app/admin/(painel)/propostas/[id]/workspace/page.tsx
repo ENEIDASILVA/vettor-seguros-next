@@ -55,9 +55,7 @@ export default async function PropostaWorkspacePage({
         modoEdicao={
           modoEdicao
         }
-        dados={
-          dados
-        }
+        dados={dados}
       />
     </BasePage>
   );

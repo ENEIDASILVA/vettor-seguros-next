@@ -37,7 +37,8 @@ type FiltroSituacao =
   | "todas"
   | "elaboracao"
   | "enviadas"
-  | "convertidas";
+  | "convertidas"
+  | "negadas";
 
 function moeda(
   valor: number | null,
@@ -114,6 +115,14 @@ function obterSituacao(
   }
 
   if (
+    normalizar(
+      proposta.status,
+    ) === "negada"
+  ) {
+    return "Negada";
+  }
+
+  if (
     proposta.status ===
       "Enviada para o cliente" ||
     proposta.status ===
@@ -136,6 +145,9 @@ function statusClass(
 
     case "Convertida em Apólice":
       return "bg-emerald-100 text-emerald-700";
+
+    case "Negada":
+      return "bg-rose-100 text-rose-700";
 
     default:
       return "bg-yellow-100 text-yellow-700";
@@ -200,7 +212,7 @@ function CabecalhoOrdenavel({
 
   return (
     <th
-      className={`px-4 py-4 text-left ${className}`}
+      className={`px-3 py-4 text-left ${className}`}
     >
       <button
         type="button"
@@ -307,6 +319,7 @@ export default function PropostaTable({
         let elaboracao = 0;
         let enviadas = 0;
         let convertidas = 0;
+        let negadas = 0;
 
         for (
           const proposta
@@ -324,6 +337,11 @@ export default function PropostaTable({
             convertidas += 1;
           } else if (
             situacao ===
+            "Negada"
+          ) {
+            negadas += 1;
+          } else if (
+            situacao ===
             "Enviada para o cliente"
           ) {
             enviadas += 1;
@@ -338,6 +356,7 @@ export default function PropostaTable({
           elaboracao,
           enviadas,
           convertidas,
+          negadas,
         };
       },
       [propostas],
@@ -381,6 +400,12 @@ export default function PropostaTable({
                     "convertidas" &&
                   situacao ===
                     "Convertida em Apólice"
+                ) ||
+                (
+                  filtroSituacao ===
+                    "negadas" &&
+                  situacao ===
+                    "Negada"
                 );
 
               const correspondeBusca =
@@ -512,6 +537,14 @@ export default function PropostaTable({
             total:
               contadores.convertidas,
           },
+          {
+            chave:
+              "negadas" as const,
+            titulo:
+              "Negadas",
+            total:
+              contadores.negadas,
+          },
         ].map(
           (card) => {
             const ativo =
@@ -597,8 +630,7 @@ export default function PropostaTable({
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-slate-200">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] table-fixed">
+            <table className="w-full table-fixed">
               <thead className="bg-slate-50">
                 <tr>
                   <CabecalhoOrdenavel
@@ -613,7 +645,7 @@ export default function PropostaTable({
                     onOrdenar={
                       ordenar
                     }
-                    className="w-[22%]"
+                    className="w-[20%]"
                   />
 
                   <CabecalhoOrdenavel
@@ -628,7 +660,7 @@ export default function PropostaTable({
                     onOrdenar={
                       ordenar
                     }
-                    className="w-[23%]"
+                    className="w-[20%]"
                   />
 
                   <CabecalhoOrdenavel
@@ -643,7 +675,7 @@ export default function PropostaTable({
                     onOrdenar={
                       ordenar
                     }
-                    className="w-[14%]"
+                    className="w-[12%]"
                   />
 
                   <CabecalhoOrdenavel
@@ -658,7 +690,7 @@ export default function PropostaTable({
                     onOrdenar={
                       ordenar
                     }
-                    className="w-[15%]"
+                    className="w-[16%]"
                   />
 
                   <CabecalhoOrdenavel
@@ -676,7 +708,7 @@ export default function PropostaTable({
                     className="w-[14%]"
                   />
 
-                  <th className="w-[12%] px-4 py-4 text-center font-semibold text-slate-800">
+                  <th className="w-[18%] px-3 py-4 text-center font-semibold text-slate-800">
                     Ações
                   </th>
                 </tr>
@@ -699,7 +731,7 @@ export default function PropostaTable({
                         }
                         className="border-t border-slate-100 transition hover:bg-slate-50"
                       >
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-4">
                           <div className="truncate font-medium">
                             {
                               proposta.cliente
@@ -707,8 +739,8 @@ export default function PropostaTable({
                           </div>
                         </td>
 
-                        <td className="px-4 py-4">
-                          <div className="text-sm leading-6">
+                        <td className="px-3 py-4">
+                          <div className="truncate text-sm leading-6">
                             {proposta
                               .seguradoras
                               .length
@@ -719,22 +751,22 @@ export default function PropostaTable({
                           </div>
                         </td>
 
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-4">
                           {
                             proposta.tipoSeguro
                           }
                         </td>
 
-                        <td className="px-4 py-4 font-semibold">
+                        <td className="px-3 py-4 font-semibold">
                           {moeda(
                             proposta.melhorPremio ??
                               proposta.premioTotal,
                           )}
                         </td>
 
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-4">
                           <span
-                            className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${statusClass(
+                            className={`inline-flex max-w-full rounded-full px-2.5 py-1 text-sm font-medium ${statusClass(
                               situacao,
                             )}`}
                           >
@@ -744,7 +776,7 @@ export default function PropostaTable({
                           </span>
                         </td>
 
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-4">
                           <PropostaActions
                             id={
                               proposta.id
@@ -755,6 +787,9 @@ export default function PropostaTable({
                             apoliceId={
                               proposta.apoliceId
                             }
+                            status={
+                              proposta.status
+                            }
                           />
                         </td>
                       </tr>
@@ -763,7 +798,6 @@ export default function PropostaTable({
                 )}
               </tbody>
             </table>
-          </div>
         </div>
       )}
 

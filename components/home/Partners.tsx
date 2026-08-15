@@ -3,13 +3,15 @@ import SectionTitle from "../ui/SectionTitle";
 import Card from "../ui/Card";
 
 const partners = [
+  "Allianz",
   "Porto Seguro",
   "Tokio Marine",
   "Suhai",
   "Mapfre",
   "Yelum",
   "HDI",
-  "Aliro"
+  "Aliro",
+  "Azul"
 ];
 
 export default function Partners() {

@@ -5,7 +5,7 @@ type Props = {
 };
 
 export default function UltimasCotacoes({
-  cotacoes,
+  cotacoes = [],
 }: Props) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">

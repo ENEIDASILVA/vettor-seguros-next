@@ -99,7 +99,7 @@ function CabecalhoOrdenavel({
 
   return (
     <th
-      className={`whitespace-nowrap px-6 py-4 text-sm font-semibold text-slate-700 ${className}`}
+      className={`px-3 py-4 text-sm font-semibold text-slate-700 ${className}`}
     >
       <button
         type="button"
@@ -372,8 +372,8 @@ export default function ClienteTable({
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
+          <div className="w-full">
+            <table className="w-full table-fixed">
               <thead className="bg-slate-100">
                 <tr>
                   <CabecalhoOrdenavel
@@ -388,7 +388,7 @@ export default function ClienteTable({
                     onOrdenar={
                       ordenar
                     }
-                    className="text-left"
+                    className="w-[24%] text-left"
                   />
 
                   <CabecalhoOrdenavel
@@ -403,7 +403,7 @@ export default function ClienteTable({
                     onOrdenar={
                       ordenar
                     }
-                    className="text-left"
+                    className="w-[13%] text-left"
                   />
 
                   <CabecalhoOrdenavel
@@ -418,7 +418,7 @@ export default function ClienteTable({
                     onOrdenar={
                       ordenar
                     }
-                    className="text-left"
+                    className="w-[15%] text-left"
                   />
 
                   <CabecalhoOrdenavel
@@ -433,7 +433,7 @@ export default function ClienteTable({
                     onOrdenar={
                       ordenar
                     }
-                    className="text-left"
+                    className="w-[20%] text-left"
                   />
 
                   <CabecalhoOrdenavel
@@ -448,10 +448,10 @@ export default function ClienteTable({
                     onOrdenar={
                       ordenar
                     }
-                    className="text-center"
+                    className="w-[12%] text-center"
                   />
 
-                  <th className="whitespace-nowrap px-6 py-4 text-center text-sm font-semibold text-slate-700">
+                  <th className="w-[16%] px-3 py-4 text-center text-sm font-semibold text-slate-700">
                     Ações
                   </th>
                 </tr>
@@ -468,15 +468,15 @@ export default function ClienteTable({
                       }
                       className="transition hover:bg-slate-50"
                     >
-                      <td className="px-6 py-4">
-                        <div className="font-semibold text-slate-900">
+                      <td className="px-3 py-4">
+                        <div className="truncate font-semibold text-slate-900">
                           {
                             cliente.nome
                           }
                         </div>
 
                         {cliente.email && (
-                          <div className="mt-1 text-sm text-slate-500">
+                          <div className="mt-1 truncate text-sm text-slate-500">
                             {
                               cliente.email
                             }
@@ -484,24 +484,24 @@ export default function ClienteTable({
                         )}
                       </td>
 
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
+                      <td className="truncate px-3 py-4 text-sm text-slate-700">
                         {cliente.cpf ||
                           "Não informado"}
                       </td>
 
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
+                      <td className="truncate px-3 py-4 text-sm text-slate-700">
                         {cliente.telefone ||
                           "Não informado"}
                       </td>
 
-                      <td className="px-6 py-4">
+                      <td className="px-3 py-4">
                         {cliente.produtosVigentes.length > 0 ? (
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap gap-1.5">
                             {cliente.produtosVigentes.map(
                               (produto) => (
                                 <span
                                   key={produto}
-                                  className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-[#0A2F5A]"
+                                  className="inline-flex max-w-full truncate rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-[#0A2F5A]"
                                 >
                                   {produto}
                                 </span>
@@ -515,7 +515,7 @@ export default function ClienteTable({
                         )}
                       </td>
 
-                      <td className="whitespace-nowrap px-6 py-4 text-center">
+                      <td className="px-3 py-4 text-center">
                         <ClienteStatusBadge
                           ativo={
                             cliente.ativo
@@ -523,7 +523,7 @@ export default function ClienteTable({
                         />
                       </td>
 
-                      <td className="whitespace-nowrap px-6 py-4">
+                      <td className="px-2 py-4">
                         <ClienteActions
                           cliente={
                             cliente

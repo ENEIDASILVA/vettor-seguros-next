@@ -541,19 +541,17 @@ Promise<PropostaLista[]> {
 
         status:
           mapaApolices.has(
-            String(
-              item.id,
-            ),
+            String(item.id),
           )
             ? "Convertida em Apólice"
-            : (
-                item.status ===
-                  "Enviada para o cliente" ||
-                item.status ===
-                  "Enviada ao Cliente"
-              )
-              ? "Enviada para o cliente"
-              : "Em elaboração",
+            : String(
+                item.status ?? "",
+              ).trim() ||
+              (
+                item.arquivo_pdf_path
+                  ? "Enviada ao Cliente"
+                  : "Em elaboração"
+              ),
 
         possuiApolice:
           mapaApolices.has(

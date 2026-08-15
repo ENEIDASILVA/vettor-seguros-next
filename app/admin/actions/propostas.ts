@@ -220,6 +220,58 @@ export async function excluirProposta(
   );
 
 }
+
+export async function negarProposta(
+  id: string,
+) {
+  if (!id) {
+    throw new Error(
+      "ID da proposta não informado.",
+    );
+  }
+
+  const supabase =
+    await createClient();
+
+  await garantirPropostaEditavel(
+    supabase,
+    id,
+  );
+
+  const { error } =
+    await supabase
+      .from("propostas")
+      .update({
+        status:
+          "NEGADA",
+        updated_at:
+          new Date().toISOString(),
+      })
+      .eq(
+        "id",
+        id,
+      );
+
+  if (error) {
+    throw new Error(
+      `Não foi possível negar a proposta: ${error.message}`,
+    );
+  }
+
+  revalidatePath(
+    "/admin/propostas",
+  );
+
+  revalidatePath(
+    "/admin/dashboard",
+  );
+
+  revalidatePath(
+    `/admin/propostas/${id}/workspace`,
+  );
+}
+
+
 export async function atualizarProposta(
   formData: FormData
 ) {

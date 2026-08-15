@@ -1,8 +1,8 @@
 import {
-  CircleCheckBig,
   Clock3,
-  FileText,
-  Users,
+  FileCheck2,
+  FileClock,
+  RefreshCw,
 } from "lucide-react";
 
 import DashboardCard from "./DashboardCard";
@@ -11,45 +11,57 @@ import type {
   DashboardIndicadores,
 } from "@/lib/repositories/dashboardRepository";
 
-type DashboardCardsProps = {
+type Props = {
   indicadores: DashboardIndicadores;
 };
 
 export default function DashboardCards({
   indicadores,
-}: DashboardCardsProps) {
+}: Props) {
   return (
-    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <DashboardCard
-        title="Clientes"
-        value={indicadores.clientes}
-        icon={Users}
-        color="blue"
-        description="Clientes ativos"
-      />
-
-      <DashboardCard
-        title="Cotações"
-        value={indicadores.cotacoes}
-        icon={FileText}
-        color="yellow"
-        description="Total de cotações"
-      />
-
-      <DashboardCard
-        title="Em Cotação"
-        value={indicadores.emCotacao}
+        title="Em processo de cotação"
+        value={
+          indicadores.emProcessoCotacao
+        }
         icon={Clock3}
         color="yellow"
-        description="Em andamento"
+        description="Cotações que exigem andamento"
+        href="#em-processo-cotacao"
       />
 
       <DashboardCard
-        title="Fechadas"
-        value={indicadores.fechadas}
-        icon={CircleCheckBig}
+        title="Propostas em tratamento"
+        value={
+          indicadores.propostasEmTratamento
+        }
+        icon={FileClock}
+        color="blue"
+        description="Propostas ainda não convertidas em apólice"
+        href="#propostas-em-tratamento"
+      />
+
+      <DashboardCard
+        title="Apólice a emitir"
+        value={
+          indicadores.apoliceAEmitir
+        }
+        icon={FileCheck2}
         color="green"
-        description="Cotações concluídas"
+        description="Propostas aceitas"
+        href="#apolice-a-emitir"
+      />
+
+      <DashboardCard
+        title="Seguros vencendo em 30 dias"
+        value={
+          indicadores.vencendo30Dias
+        }
+        icon={RefreshCw}
+        color="red"
+        description="Renovações que precisam de atenção"
+        href="#vencendo-30-dias"
       />
     </div>
   );
