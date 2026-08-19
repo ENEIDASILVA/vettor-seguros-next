@@ -731,8 +731,8 @@ export default function PropostaTable({
                         }
                         className="border-t border-slate-100 transition hover:bg-slate-50"
                       >
-                        <td className="px-3 py-4">
-                          <div className="truncate font-medium">
+                        <td className="px-3 py-4 align-middle">
+                          <div className="whitespace-normal break-words text-[13px] font-semibold leading-5 text-slate-800">
                             {
                               proposta.cliente
                             }

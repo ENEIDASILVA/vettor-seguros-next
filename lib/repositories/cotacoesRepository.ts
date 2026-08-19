@@ -293,7 +293,17 @@ cotacao.quantidadeCotacoesSeguradoras =
     String(item.id),
   ) ?? 0;
 
-if (cotacao.proposta) {
+if (
+  cotacao.proposta &&
+  cotacao.proposta.status
+    .trim()
+    .toUpperCase() === "NEGADA"
+) {
+  cotacao.status = {
+    id: 4,
+    nome: "Proposta Negada",
+  };
+} else if (cotacao.proposta) {
   cotacao.status = {
     id: 3,
     nome: "Proposta Gerada",

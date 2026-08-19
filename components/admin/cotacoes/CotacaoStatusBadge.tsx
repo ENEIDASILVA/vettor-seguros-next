@@ -40,6 +40,7 @@ function getStatusVariant(
     case "Fechado":
       return "success";
 
+    case "Proposta Negada":
     case "Perdido":
       return "danger";
 
