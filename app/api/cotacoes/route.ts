@@ -56,6 +56,25 @@ function getInsuranceAliases(
     ];
   }
 
+  if (insurance.includes("empres")) {
+    return ["Seguro Empresarial", "Empresarial"];
+  }
+
+  if (
+    insurance.includes("saúde") ||
+    insurance.includes("saude")
+  ) {
+    return ["Seguro Saúde", "Saúde"];
+  }
+
+  if (insurance.includes("rural")) {
+    return ["Seguro Rural", "Rural"];
+  }
+
+  if (insurance.includes("viagem")) {
+    return ["Seguro Viagem", "Viagem"];
+  }
+
   if (
     vehicle.includes("moto") ||
     insurance.includes("moto")

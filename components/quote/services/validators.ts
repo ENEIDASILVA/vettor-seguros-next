@@ -32,6 +32,17 @@ export function canProceed(
   }
 
   if (step === 2) {
+    if (form.insuranceType === "Seguro Residencial") {
+      return (
+        form.name.trim() !== "" &&
+        form.phone.trim() !== "" &&
+        isValidEmail(form.email) &&
+        isValidCPF(form.cpf) &&
+        isValidCep(form.propertyCep) &&
+        form.residentialContactConsent === "Sim"
+      );
+    }
+
     return (
       form.name.trim() !== "" &&
       form.phone.trim() !== "" &&
@@ -131,6 +142,30 @@ export function canProceed(
         beneficiariesTotal(form) === 100
       );
     }
+  }
+
+  if (form.insuranceType === "Seguro Empresarial") {
+    if (step === 3) return onlyNumbers(form.businessCnpj).length === 14 && form.businessLegalName.trim() !== "" && form.businessActivity.trim() !== "" && isValidCep(form.businessCep);
+    if (step === 4) return form.businessEmployees.trim() !== "" && form.businessAnnualRevenue.trim() !== "" && form.businessPropertyStatus.trim() !== "";
+    if (step === 5) return form.coverages.length > 0;
+  }
+
+  if (form.insuranceType === "Seguro Saúde") {
+    if (step === 3) return form.healthPlanFor.trim() !== "" && Number(form.healthLives) > 0 && form.healthAges.trim() !== "" && form.healthScope.trim() !== "";
+    if (step === 4) return form.healthHasPlan.trim() !== "" && (form.healthHasPlan !== "Sim" || form.healthCurrentOperator.trim() !== "") && form.healthAccommodation.trim() !== "" && form.healthCopay.trim() !== "";
+    if (step === 5) return form.coverages.length > 0;
+  }
+
+  if (form.insuranceType === "Seguro Rural") {
+    if (step === 3) return form.ruralPropertyName.trim() !== "" && isValidCep(form.ruralCep) && form.ruralActivity.trim() !== "" && form.ruralArea.trim() !== "" && form.ruralAnnualRevenue.trim() !== "";
+    if (step === 4) return form.ruralMachineryValue.trim() !== "" && form.ruralHasLivestock.trim() !== "" && form.ruralHasStorage.trim() !== "";
+    if (step === 5) return form.coverages.length > 0;
+  }
+
+  if (form.insuranceType === "Seguro Viagem") {
+    if (step === 3) return form.travelDestination.trim() !== "" && form.travelDepartureDate.length === 10 && form.travelReturnDate.length === 10 && Number(form.travelTravelers) > 0 && form.travelAges.trim() !== "";
+    if (step === 4) return form.travelPurpose.trim() !== "" && form.travelHasPreexistingCondition.trim() !== "" && form.travelWillPracticeSports.trim() !== "";
+    if (step === 5) return form.coverages.length > 0;
   }
 
   return true;

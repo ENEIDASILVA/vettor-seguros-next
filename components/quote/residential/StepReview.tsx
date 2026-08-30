@@ -93,7 +93,7 @@ export default function StepReview({
           />
 
           <SummaryField
-            label="Área construída"
+            label="Área construída aproximada"
             value={
               form.propertyArea
                 ? form.propertyArea + " m²"
@@ -105,6 +105,7 @@ export default function StepReview({
             label="Valor aproximado"
             value={form.propertyValue}
           />
+
         </SummaryCard>
 
         <SummaryCard

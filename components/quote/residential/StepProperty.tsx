@@ -74,9 +74,10 @@ export default function StepProperty() {
       {
         style: "currency",
         currency: "BRL",
-        maximumFractionDigits: 0,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       }
-    ).format(Number(numbers));
+    ).format(Number(numbers) / 100);
 
     updateField(
       "propertyValue",
@@ -247,7 +248,7 @@ export default function StepProperty() {
       />
 
       <Input
-        label="Área construída (m²)"
+        label="Área construída aproximada (m²)"
         value={form.propertyArea}
         placeholder="Ex.: 180"
         required
@@ -257,7 +258,7 @@ export default function StepProperty() {
       <Input
         label="Valor aproximado do imóvel"
         value={form.propertyValue}
-        placeholder="Ex.: R$ 800.000"
+        placeholder="Ex.: R$ 800.000,00"
         required
         onChange={handleValueChange}
       />

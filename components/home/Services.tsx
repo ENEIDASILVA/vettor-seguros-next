@@ -7,7 +7,7 @@ import {
   Building2,
   Stethoscope,
   Tractor,
-  Truck,
+  Plane,
 } from "lucide-react";
 
 import Card from "../ui/Card";
@@ -37,25 +37,25 @@ const services = [
     title: "Seguro Empresarial",
     icon: Building2,
     text: "Soluções para proteger sua empresa, patrimônio e operação.",
-    onlineQuote: false,
+    onlineQuote: true,
   },
   {
     title: "Seguro Saúde",
     icon: Stethoscope,
     text: "Planos de saúde sob medida para você, sua família ou empresa.",
-    onlineQuote: false,
+    onlineQuote: true,
   },
   {
     title: "Seguro Rural",
     icon: Tractor,
     text: "Proteção para atividades rurais, equipamentos e produção.",
-    onlineQuote: false,
+    onlineQuote: true,
   },
   {
-    title: "Seguro Frota",
-    icon: Truck,
-    text: "Gestão e proteção para veículos empresariais e comerciais.",
-    onlineQuote: false,
+    title: "Seguro Viagem",
+    icon: Plane,
+    text: "Proteção para imprevistos, saúde e assistência durante sua viagem.",
+    onlineQuote: true,
   },
 ];
 
@@ -121,10 +121,10 @@ function startOnlineQuote(
         <SectionTitle
           badge="Nossos Seguros"
           title="Escolha a proteção que você precisa"
-          subtitle="Faça sua cotação online para Auto, Residencial e Vida, ou fale diretamente com a Vettor Seguros para outros produtos."
+          subtitle="Faça sua cotação online para Auto, Residencial, Vida, Empresarial, Saúde ou Rural."
         />
 
-        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-3">
           {onlineServices.map((service) => {
             const Icon = service.icon;
 
@@ -170,6 +170,7 @@ function startOnlineQuote(
           })}
         </div>
 
+        {otherServices.length > 0 && (
         <div className="mt-12">
           <div className="mb-6 text-center">
             <h3 className="text-2xl font-bold text-[#0B2E6D]">
@@ -177,7 +178,7 @@ function startOnlineQuote(
             </h3>
 
             <p className="mt-2 text-gray-600">
-              Para outros tipos de seguro, fale com nossa equipe pelo WhatsApp.
+              Conte com a Vettor para encontrar outras proteções sob medida.
             </p>
           </div>
 
@@ -221,6 +222,7 @@ function startOnlineQuote(
             })}
           </div>
         </div>
+        )}
       </Container>
     </section>
   );

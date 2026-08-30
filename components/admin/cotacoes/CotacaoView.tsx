@@ -211,6 +211,11 @@ export default function CotacaoView({
       "vida",
     );
 
+  const seguroEmpresarial = seguroNormalizado.includes("empres");
+  const seguroSaude = seguroNormalizado.includes("saúde") || seguroNormalizado.includes("saude");
+  const seguroRural = seguroNormalizado.includes("rural");
+  const seguroViagem = seguroNormalizado.includes("viagem");
+
   const coberturas =
     lerListaTexto(
       dados,
@@ -746,6 +751,58 @@ export default function CotacaoView({
         </Secao>
       )}
 
+
+      {seguroEmpresarial && (
+        <Secao titulo="Dados da Empresa"><Grade>
+          <Campo titulo="CNPJ" valor={valorOuTraco(lerTexto(dados, "businessCnpj"))} />
+          <Campo titulo="Razão Social" valor={valorOuTraco(lerTexto(dados, "businessLegalName"))} />
+          <Campo titulo="Nome Fantasia" valor={valorOuTraco(lerTexto(dados, "businessTradeName"))} />
+          <Campo titulo="Atividade" valor={valorOuTraco(lerTexto(dados, "businessActivity"))} />
+          <Campo titulo="CEP" valor={valorOuTraco(lerTexto(dados, "businessCep"))} />
+          <Campo titulo="Funcionários" valor={valorOuTraco(lerTexto(dados, "businessEmployees"))} />
+          <Campo titulo="Faturamento Anual" valor={valorOuTraco(lerTexto(dados, "businessAnnualRevenue"))} />
+          <Campo titulo="Situação do Imóvel" valor={valorOuTraco(lerTexto(dados, "businessPropertyStatus"))} />
+        </Grade></Secao>
+      )}
+
+      {seguroSaude && (
+        <Secao titulo="Perfil do Seguro Saúde"><Grade>
+          <Campo titulo="Plano para" valor={valorOuTraco(lerTexto(dados, "healthPlanFor"))} />
+          <Campo titulo="Quantidade de Vidas" valor={valorOuTraco(lerTexto(dados, "healthLives"))} />
+          <Campo titulo="Idades" valor={valorOuTraco(lerTexto(dados, "healthAges"))} />
+          <Campo titulo="Abrangência" valor={valorOuTraco(lerTexto(dados, "healthScope"))} />
+          <Campo titulo="Possui Plano" valor={valorOuTraco(lerTexto(dados, "healthHasPlan"))} />
+          <Campo titulo="Operadora Atual" valor={valorOuTraco(lerTexto(dados, "healthCurrentOperator"))} />
+          <Campo titulo="Acomodação" valor={valorOuTraco(lerTexto(dados, "healthAccommodation"))} />
+          <Campo titulo="Coparticipação" valor={valorOuTraco(lerTexto(dados, "healthCopay"))} />
+        </Grade></Secao>
+      )}
+
+      {seguroRural && (
+        <Secao titulo="Dados da Propriedade Rural"><Grade>
+          <Campo titulo="Propriedade" valor={valorOuTraco(lerTexto(dados, "ruralPropertyName"))} />
+          <Campo titulo="CEP" valor={valorOuTraco(lerTexto(dados, "ruralCep"))} />
+          <Campo titulo="Atividade" valor={valorOuTraco(lerTexto(dados, "ruralActivity"))} />
+          <Campo titulo="Área" valor={valorOuTraco(lerTexto(dados, "ruralArea"))} />
+          <Campo titulo="Faturamento Anual" valor={valorOuTraco(lerTexto(dados, "ruralAnnualRevenue"))} />
+          <Campo titulo="Máquinas e Implementos" valor={valorOuTraco(lerTexto(dados, "ruralMachineryValue"))} />
+          <Campo titulo="Criação de Animais" valor={valorOuTraco(lerTexto(dados, "ruralHasLivestock"))} />
+          <Campo titulo="Silos ou Depósitos" valor={valorOuTraco(lerTexto(dados, "ruralHasStorage"))} />
+        </Grade></Secao>
+      )}
+
+      {seguroViagem && (
+        <Secao titulo="Dados da Viagem"><Grade>
+          <Campo titulo="Destino" valor={valorOuTraco(lerTexto(dados, "travelDestination"))} />
+          <Campo titulo="Data de Embarque" valor={valorOuTraco(lerTexto(dados, "travelDepartureDate"))} />
+          <Campo titulo="Data de Retorno" valor={valorOuTraco(lerTexto(dados, "travelReturnDate"))} />
+          <Campo titulo="Quantidade de Viajantes" valor={valorOuTraco(lerTexto(dados, "travelTravelers"))} />
+          <Campo titulo="Idades" valor={valorOuTraco(lerTexto(dados, "travelAges"))} />
+          <Campo titulo="Motivo da Viagem" valor={valorOuTraco(lerTexto(dados, "travelPurpose"))} />
+          <Campo titulo="Condição Preexistente" valor={valorOuTraco(lerTexto(dados, "travelHasPreexistingCondition"))} />
+          <Campo titulo="Esportes ou Aventura" valor={valorOuTraco(lerTexto(dados, "travelWillPracticeSports"))} />
+        </Grade></Secao>
+      )}
 
       {seguroVida && (
         <Secao titulo="Perfil do Seguro de Vida">

@@ -4,7 +4,8 @@ export type InsuranceType =
   | "Seguro de Vida"
   | "Seguro Empresarial"
   | "Seguro Saúde"
-  | "Seguro Rural";
+  | "Seguro Rural"
+  | "Seguro Viagem";
 
 export interface Beneficiary {
   id: string;
@@ -75,6 +76,7 @@ export interface QuoteFormData {
   propertyStatus: string;
   propertyArea: string;
   propertyValue: string;
+  residentialContactConsent: string;
   propertyUse: string;
   propertyAlarm: string;
   propertyMonitoring: string;
@@ -91,6 +93,46 @@ export interface QuoteFormData {
   lifeFrequentTravel: string;
   lifeInsuredCapital: string;
   beneficiaries: Beneficiary[];
+
+  // Seguro Empresarial
+  businessCnpj: string;
+  businessLegalName: string;
+  businessTradeName: string;
+  businessActivity: string;
+  businessCep: string;
+  businessEmployees: string;
+  businessAnnualRevenue: string;
+  businessPropertyStatus: string;
+
+  // Seguro Saúde
+  healthLives: string;
+  healthPlanFor: string;
+  healthAges: string;
+  healthHasPlan: string;
+  healthCurrentOperator: string;
+  healthAccommodation: string;
+  healthScope: string;
+  healthCopay: string;
+
+  // Seguro Rural
+  ruralPropertyName: string;
+  ruralCep: string;
+  ruralActivity: string;
+  ruralArea: string;
+  ruralAnnualRevenue: string;
+  ruralMachineryValue: string;
+  ruralHasLivestock: string;
+  ruralHasStorage: string;
+
+  // Seguro Viagem
+  travelDestination: string;
+  travelDepartureDate: string;
+  travelReturnDate: string;
+  travelTravelers: string;
+  travelAges: string;
+  travelPurpose: string;
+  travelHasPreexistingCondition: string;
+  travelWillPracticeSports: string;
 
   // Coberturas
   coverages: string[];

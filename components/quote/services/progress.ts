@@ -13,6 +13,9 @@ const stepLabels: Record<string, string> = {
   lifeRisk: "Saúde e atividades",
   lifeCoverage: "Coberturas e capital",
   beneficiaries: "Beneficiários",
+  productDetails: "Perfil do seguro",
+  productNeeds: "Características e necessidades",
+  productCoverage: "Coberturas desejadas",
 
   coverage: "Coberturas",
   review: "Revisão",

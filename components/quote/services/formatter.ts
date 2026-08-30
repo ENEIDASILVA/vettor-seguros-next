@@ -304,6 +304,34 @@ function formatLifeMessage(form: QuoteFormData) {
   return lines.join("\n");
 }
 
+function formatOtherMessage(form: QuoteFormData) {
+  const lines: string[] = [
+    "🛡️ NOVA SOLICITAÇÃO DE COTAÇÃO - VETTOR SEGUROS",
+    "",
+    form.insuranceType.toUpperCase(),
+    "",
+    "👤 DADOS DO CLIENTE",
+    "Nome: " + value(form.name),
+    "Telefone: " + value(form.phone),
+    "E-mail: " + value(form.email),
+    "CPF: " + value(form.cpf),
+    "",
+  ];
+
+  if (form.insuranceType === "Seguro Empresarial") {
+    lines.push("🏢 DADOS DA EMPRESA", "CNPJ: " + value(form.businessCnpj), "Razão social: " + value(form.businessLegalName), "Nome fantasia: " + value(form.businessTradeName), "Atividade: " + value(form.businessActivity), "CEP: " + value(form.businessCep), "Funcionários: " + value(form.businessEmployees), "Faturamento anual: " + value(form.businessAnnualRevenue), "Situação do imóvel: " + value(form.businessPropertyStatus));
+  } else if (form.insuranceType === "Seguro Saúde") {
+    lines.push("⚕️ PERFIL DO PLANO", "Plano para: " + value(form.healthPlanFor), "Quantidade de vidas: " + value(form.healthLives), "Idades: " + value(form.healthAges), "Abrangência: " + value(form.healthScope), "Possui plano: " + value(form.healthHasPlan), "Operadora atual: " + value(form.healthCurrentOperator), "Acomodação: " + value(form.healthAccommodation), "Coparticipação: " + value(form.healthCopay));
+  } else if (form.insuranceType === "Seguro Rural") {
+    lines.push("🌾 DADOS RURAIS", "Propriedade: " + value(form.ruralPropertyName), "CEP: " + value(form.ruralCep), "Atividade: " + value(form.ruralActivity), "Área: " + value(form.ruralArea) + " hectares", "Faturamento anual: " + value(form.ruralAnnualRevenue), "Máquinas e implementos: " + value(form.ruralMachineryValue), "Criação de animais: " + value(form.ruralHasLivestock), "Silos ou depósitos: " + value(form.ruralHasStorage));
+  } else {
+    lines.push("✈️ DADOS DA VIAGEM", "Destino: " + value(form.travelDestination), "Embarque: " + value(form.travelDepartureDate), "Retorno: " + value(form.travelReturnDate), "Viajantes: " + value(form.travelTravelers), "Idades: " + value(form.travelAges), "Motivo: " + value(form.travelPurpose), "Condição preexistente: " + value(form.travelHasPreexistingCondition), "Esportes ou aventura: " + value(form.travelWillPracticeSports));
+  }
+
+  lines.push("", "🛡️ COBERTURAS DESEJADAS", formatCoverages(form));
+  return lines.join("\n");
+}
+
 export function formatWhatsAppMessage(
   form: QuoteFormData
 ) {
@@ -313,6 +341,15 @@ export function formatWhatsAppMessage(
 
   if (form.insuranceType === "Seguro de Vida") {
     return formatLifeMessage(form);
+  }
+
+  if (
+    form.insuranceType === "Seguro Empresarial" ||
+    form.insuranceType === "Seguro Saúde" ||
+    form.insuranceType === "Seguro Rural" ||
+    form.insuranceType === "Seguro Viagem"
+  ) {
+    return formatOtherMessage(form);
   }
 
   return formatAutoMessage(form);
