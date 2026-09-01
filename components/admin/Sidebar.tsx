@@ -31,14 +31,14 @@ const menu = [
     icon: ClipboardList,
   },
   {
-    href: "/admin/apolices",
-    label: "Apólices",
-    icon: FileCheck2,
-  },
-  {
     href: "/admin/propostas",
     label: "Propostas",
     icon: FileText,
+  },
+  {
+    href: "/admin/apolices",
+    label: "Apólices",
+    icon: FileCheck2,
   },
   {
     href: "/admin/relatorios",

@@ -36,6 +36,11 @@ export type ApoliceDetalhe = {
   comissaoPercentual: number | null;
   comissaoValor: number | null;
 
+  metodoPagamento: string;
+  quantidadeParcelas: number;
+  primeiroVencimento: string;
+  pagamentos: ApolicePagamento[];
+
   observacoes: string | null;
   status: string;
 
@@ -44,6 +49,16 @@ export type ApoliceDetalhe = {
   arquivoPdfTamanho: number | null;
   arquivoPdfTipo: string | null;
   arquivoPdfUrl: string | null;
+};
+
+export type ApolicePagamento = {
+  id: string;
+  numeroParcela: number;
+  quantidadeParcelas: number;
+  valor: number;
+  dataVencimento: string;
+  dataPagamento: string | null;
+  status: string;
 };
 
 
@@ -189,6 +204,9 @@ export async function buscarApolice(
       premio_total,
       comissao_percentual,
       comissao_valor,
+      metodo_pagamento,
+      quantidade_parcelas,
+      primeiro_vencimento,
       observacoes,
       status,
       arquivo_pdf_path,
@@ -204,6 +222,16 @@ export async function buscarApolice(
 
       proposta:propostas!apolices_proposta_id_fkey(
         numero_proposta
+      ),
+
+      pagamentos:apolice_pagamentos(
+        id,
+        numero_parcela,
+        quantidade_parcelas,
+        valor,
+        data_vencimento,
+        data_pagamento,
+        status
       )
     `)
     .eq("id", id)
@@ -290,6 +318,35 @@ export async function buscarApolice(
     comissaoValor:
       data.comissao_valor,
 
+    metodoPagamento:
+      data.metodo_pagamento ?? "À vista",
+
+    quantidadeParcelas:
+      Number(data.quantidade_parcelas ?? 1),
+
+    primeiroVencimento:
+      data.primeiro_vencimento ?? "",
+
+    pagamentos: ((data.pagamentos ?? []) as Array<{
+      id: string;
+      numero_parcela: number;
+      quantidade_parcelas: number;
+      valor: number;
+      data_vencimento: string;
+      data_pagamento: string | null;
+      status: string;
+    }>)
+      .sort((a, b) => a.numero_parcela - b.numero_parcela)
+      .map((pagamento) => ({
+        id: pagamento.id,
+        numeroParcela: pagamento.numero_parcela,
+        quantidadeParcelas: pagamento.quantidade_parcelas,
+        valor: Number(pagamento.valor),
+        dataVencimento: pagamento.data_vencimento,
+        dataPagamento: pagamento.data_pagamento,
+        status: pagamento.status,
+      })),
+
     observacoes:
       data.observacoes,
 
@@ -335,6 +392,10 @@ export type ApoliceEdicao = {
   comissaoPercentual: number | null;
   comissaoValor: number | null;
 
+  metodoPagamento: string | null;
+  quantidadeParcelas: number | null;
+  primeiroVencimento: string | null;
+
   status: string;
   observacoes: string | null;
 };
@@ -362,6 +423,9 @@ export async function buscarApoliceEdicao(
       premio_total,
       comissao_percentual,
       comissao_valor,
+      metodo_pagamento,
+      quantidade_parcelas,
+      primeiro_vencimento,
       status,
       observacoes
     `)
@@ -416,6 +480,15 @@ export async function buscarApoliceEdicao(
 
     comissaoValor:
       data.comissao_valor,
+
+    metodoPagamento:
+      data.metodo_pagamento ?? null,
+
+    quantidadeParcelas:
+      data.quantidade_parcelas ?? null,
+
+    primeiroVencimento:
+      data.primeiro_vencimento ?? null,
 
     status:
       data.status,

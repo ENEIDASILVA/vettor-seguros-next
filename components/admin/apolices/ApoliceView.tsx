@@ -16,6 +16,8 @@ import {
 } from "react";
 
 import VigenciaBadge from "./VigenciaBadge";
+import ApolicePagamentos from "./ApolicePagamentos";
+import type { ApolicePagamento } from "@/lib/repositories/apolicesRepository";
 
 import {
   enviarPdfApoliceAction,
@@ -44,6 +46,11 @@ type Props = {
 
     comissaoPercentual: number | null;
     comissaoValor: number | null;
+
+    metodoPagamento: string;
+    quantidadeParcelas: number;
+    primeiroVencimento: string;
+    pagamentos: ApolicePagamento[];
 
     observacoes: string | null;
 
@@ -315,7 +322,15 @@ export default function ApoliceView({
             apolice.comissaoValor,
           )}
         />
+
+        <Campo titulo="Método de pagamento" valor={apolice.metodoPagamento} />
+
+        <Campo titulo="Quantidade de parcelas" valor={apolice.quantidadeParcelas} />
+
+        <Campo titulo="Data do primeiro pagamento" valor={data(apolice.primeiroVencimento)} />
       </div>
+
+      <ApolicePagamentos apoliceId={apolice.id} pagamentos={apolice.pagamentos} />
 
       <Campo
         titulo="Observações"

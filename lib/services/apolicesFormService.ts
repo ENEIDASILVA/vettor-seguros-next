@@ -20,6 +20,8 @@ export type CotacaoPropostaApolice = {
   percentualFipe: number | null;
   formaPagamento: string | null;
   parcelamento: string | null;
+  parcelaMaxima: number | null;
+  vencimentoPrimeira: string | null;
   arquivoPdfNome: string | null;
 };
 
@@ -188,6 +190,8 @@ export async function carregarConversaoProposta(
         percentual_fipe,
         forma_pagamento,
         parcelamento,
+        parcela_maxima,
+        vencimento_primeira,
         arquivo_pdf_nome,
         seguradora:seguradoras!cotacoes_seguradoras_seguradora_id_fkey(
           nome
@@ -318,6 +322,14 @@ export async function carregarConversaoProposta(
             item!
               .parcelamento ??
             null,
+
+          parcelaMaxima:
+            item!.parcela_maxima !== null
+              ? Number(item!.parcela_maxima)
+              : null,
+
+          vencimentoPrimeira:
+            item!.vencimento_primeira ?? null,
 
           arquivoPdfNome:
             item!

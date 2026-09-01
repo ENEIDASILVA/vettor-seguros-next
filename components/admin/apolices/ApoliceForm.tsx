@@ -86,9 +86,17 @@ export type ApoliceFormData = {
   premioTotal: number | null;
   comissaoPercentual: number | null;
   comissaoValor: number | null;
+  metodoPagamento: string | null;
+  quantidadeParcelas: number | null;
+  primeiroVencimento: string | null;
   status: string;
   observacoes: string | null;
 };
+
+function normalizarMetodoPagamento(valor: string | null | undefined, parcelas: number | null | undefined) {
+  if (valor === "À vista") return "À vista";
+  return parcelas && parcelas > 1 ? "Parcelado" : "À vista";
+}
 
 type ApoliceFormProps = {
   clientes: Cliente[];
@@ -404,6 +412,26 @@ export default function ApoliceForm({
         "",
     );
 
+  const [metodoPagamento, setMetodoPagamento] = useState(
+    apolice?.metodoPagamento ??
+      normalizarMetodoPagamento(
+        cotacaoSelecionadaInicial?.formaPagamento,
+        cotacaoSelecionadaInicial?.parcelaMaxima,
+      ),
+  );
+
+  const [quantidadeParcelas, setQuantidadeParcelas] = useState(
+    apolice?.quantidadeParcelas ??
+      cotacaoSelecionadaInicial?.parcelaMaxima ??
+      1,
+  );
+
+  const [primeiroVencimento, setPrimeiroVencimento] = useState(
+    apolice?.primeiroVencimento ??
+      cotacaoSelecionadaInicial?.vencimentoPrimeira ??
+      "",
+  );
+
   const premioLiquidoNumerico =
     useMemo(
       () =>
@@ -515,6 +543,10 @@ export default function ApoliceForm({
         ?.toString() ??
         "",
     );
+
+    setMetodoPagamento(normalizarMetodoPagamento(cotacao.formaPagamento, cotacao.parcelaMaxima));
+    setQuantidadeParcelas(cotacao.parcelaMaxima && cotacao.parcelaMaxima > 0 ? cotacao.parcelaMaxima : 1);
+    setPrimeiroVencimento(cotacao.vencimentoPrimeira || "");
   }
 
   const clienteNome =
@@ -1244,6 +1276,69 @@ export default function ApoliceForm({
               )
             }
           />
+        </div>
+
+        <div className="md:col-span-2 rounded-2xl border border-blue-200 bg-blue-50 p-5">
+          <div className="mb-5">
+            <h3 className="font-bold text-[#0A2F5A]">Controle de pagamentos</h3>
+            <p className="mt-1 text-sm text-slate-600">
+              As parcelas serão geradas para conferência mensal e baixa pelo corretor.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            <div>
+              <label className="mb-2 block font-medium text-slate-700">Método de pagamento</label>
+              <select
+                name="metodo_pagamento"
+                value={metodoPagamento}
+                onChange={(event) => {
+                  const metodo = event.target.value;
+                  setMetodoPagamento(metodo);
+                  if (metodo === "À vista") setQuantidadeParcelas(1);
+                }}
+                required
+                className={fieldClassName}
+              >
+                <option value="À vista">À vista</option>
+                <option value="Parcelado">Parcelado</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-2 block font-medium text-slate-700">Quantidade de parcelas</label>
+              <input
+                name="quantidade_parcelas"
+                type="number"
+                min="1"
+                max="60"
+                required
+                disabled={metodoPagamento === "À vista"}
+                value={metodoPagamento === "À vista" ? 1 : quantidadeParcelas}
+                onChange={(event) => setQuantidadeParcelas(Math.max(1, Math.min(60, Number(event.target.value) || 1)))}
+                className={metodoPagamento === "À vista" ? readOnlyFieldClassName : fieldClassName}
+              />
+              {metodoPagamento === "À vista" && <input type="hidden" name="quantidade_parcelas" value="1" />}
+            </div>
+
+            <div>
+              <label className="mb-2 block font-medium text-slate-700">Data do primeiro pagamento</label>
+              <input
+                name="primeiro_vencimento"
+                type="date"
+                required
+                value={primeiroVencimento}
+                onChange={(event) => setPrimeiroVencimento(event.target.value)}
+                className={fieldClassName}
+              />
+            </div>
+          </div>
+
+          {primeiroVencimento && premioTotalNumerico > 0 && (
+            <div className="mt-5 rounded-xl border border-blue-200 bg-white p-4 text-sm text-slate-700">
+              Serão geradas <strong>{metodoPagamento === "À vista" ? 1 : quantidadeParcelas} parcela(s)</strong> de aproximadamente <strong>{formatarMoeda(premioTotalNumerico / (metodoPagamento === "À vista" ? 1 : quantidadeParcelas))}</strong>, iniciando em {new Date(`${primeiroVencimento}T12:00:00`).toLocaleDateString("pt-BR")}.
+            </div>
+          )}
         </div>
 
         <div className="md:col-span-2">

@@ -211,6 +211,11 @@ export default function CotacaoTableClient({
   ] =
     useState("");
 
+  const [
+    filtroStatus,
+    setFiltroStatus,
+  ] = useState("todas");
+
   /*
    * A listagem já chega normalmente
    * com as cotações mais recentes primeiro.
@@ -265,6 +270,49 @@ export default function CotacaoTableClient({
     );
   }
 
+  const filtrosStatus =
+    useMemo(
+      () => {
+        const contadores =
+          new Map<
+            string,
+            {
+              nome: string;
+              total: number;
+            }
+          >();
+
+        for (const cotacao of cotacoes) {
+          const nome =
+            cotacao.status?.nome?.trim() ||
+            "Sem status";
+          const chave = normalizar(nome);
+          const atual = contadores.get(chave);
+
+          contadores.set(chave, {
+            nome,
+            total: (atual?.total ?? 0) + 1,
+          });
+        }
+
+        return [
+          {
+            chave: "todas",
+            nome: "Todas",
+            total: cotacoes.length,
+          },
+          ...Array.from(contadores.entries())
+            .map(([chave, item]) => ({
+              chave,
+              nome: item.nome,
+              total: item.total,
+            }))
+            .sort((a, b) => compararTexto(a.nome, b.nome)),
+        ];
+      },
+      [cotacoes],
+    );
+
   const cotacoesExibidas =
     useMemo(
       () => {
@@ -273,23 +321,22 @@ export default function CotacaoTableClient({
             busca,
           );
 
-        const filtradas =
-          !termo
-            ? [
-                ...cotacoes,
-              ]
-            : cotacoes.filter(
-                (
-                  cotacao,
-                ) =>
-                  normalizar(
-                    cotacao
-                      .cliente
-                      ?.nome,
-                  ).includes(
-                    termo,
-                  ),
-              );
+        const filtradas = cotacoes.filter(
+          (cotacao) => {
+            const correspondeBusca =
+              !termo ||
+              normalizar(cotacao.cliente?.nome).includes(termo);
+
+            const status =
+              cotacao.status?.nome?.trim() ||
+              "Sem status";
+            const correspondeStatus =
+              filtroStatus === "todas" ||
+              normalizar(status) === filtroStatus;
+
+            return correspondeBusca && correspondeStatus;
+          },
+        );
 
         filtradas.sort(
           (
@@ -346,6 +393,7 @@ export default function CotacaoTableClient({
       [
         busca,
         cotacoes,
+        filtroStatus,
         sortDirection,
         sortKey,
       ],
@@ -353,6 +401,37 @@ export default function CotacaoTableClient({
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap gap-2" aria-label="Filtrar cotações por status">
+        {filtrosStatus.map((filtro) => {
+          const ativo = filtroStatus === filtro.chave;
+
+          return (
+            <button
+              key={filtro.chave}
+              type="button"
+              aria-pressed={ativo}
+              onClick={() => setFiltroStatus(filtro.chave)}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                ativo
+                  ? "bg-[#0A2F5A] text-white"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
+            >
+              <span>{filtro.nome}</span>
+              <span
+                className={`inline-flex min-w-6 items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-bold ${
+                  ativo
+                    ? "bg-white/20 text-white"
+                    : "bg-white text-slate-600"
+                }`}
+              >
+                {filtro.total}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="relative">
         <Search
           size={19}
@@ -384,13 +463,11 @@ export default function CotacaoTableClient({
             Nenhuma cotação encontrada.
           </p>
 
-          {busca && (
-            <p className="mt-1 text-sm text-slate-500">
-              Nenhum cliente corresponde a “
-              {busca}
-              ”.
-            </p>
-          )}
+          <p className="mt-1 text-sm text-slate-500">
+            {busca
+              ? `Nenhum cliente corresponde a “${busca}” dentro do filtro selecionado.`
+              : "Não existem cotações neste status."}
+          </p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -544,14 +621,11 @@ export default function CotacaoTableClient({
                       </td>
 
                       <td className="px-5 py-4 text-center">
-                        <Link
-                          href={`/admin/cotacoes/${cotacao.id}/seguradoras`}
-                          className="inline-flex min-w-8 items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-[#0A2F5A] transition hover:bg-blue-100"
-                        >
+                        <span className="inline-flex min-w-8 items-center justify-center rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-[#0A2F5A]">
                           {
                             cotacao.quantidadeCotacoesSeguradoras
                           }
-                        </Link>
+                        </span>
                       </td>
 
                       <td className="px-5 py-4 text-center">
