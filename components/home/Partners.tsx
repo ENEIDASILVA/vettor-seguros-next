@@ -3,15 +3,16 @@ import SectionTitle from "../ui/SectionTitle";
 import Card from "../ui/Card";
 
 const partners = [
-  "Allianz",
-  "Porto Seguro",
-  "Tokio Marine",
-  "Suhai",
-  "Mapfre",
-  "Yelum",
-  "HDI",
   "Aliro",
-  "Azul"
+  "Allianz",
+  "Azul",
+  "Bradesco Seguros",
+  "HDI",
+  "Mapfre",
+  "Porto Seguro",
+  "Suhai",
+  "Tokio Marine",
+  "Yelum"  
 ];
 
 export default function Partners() {
@@ -23,7 +24,7 @@ export default function Partners() {
       <Container>
         <SectionTitle
           badge="Seguradoras"
-          title="Opções entre grandes seguradoras do mercado"
+          title="Trabalhamos com as maiores seguradoras do mercado"
           subtitle="A Vettor Seguros busca alternativas para encontrar a proteção mais adequada ao seu perfil e às suas necessidades."
         />
 

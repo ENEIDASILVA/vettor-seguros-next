@@ -20,10 +20,7 @@ const insurerOptions = [
   { label: "Itaú", value: "Itau" },
   { label: "Allianz", value: "Allianz" },
   { label: "Mapfre", value: "Mapfre" },
-  {
-    label: "Bradesco Seguros",
-    value: "Bradesco Seguros",
-  },
+  { label: "Bradesco Seguros", value: "Bradesco Seguros" },
   { label: "SUHAI", value: "SUHAI" },
   { label: "Yelum", value: "Yelum" },
   { label: "Outra", value: "Outra" },
