@@ -9,7 +9,7 @@ import Container from "../ui/Container";
 import ProgressBar from "./ProgressBar";
 import Navigation from "./Navigation";
 import FlowRenderer from "./FlowRenderer";
-import { canProceed } from "./services/validators";
+import { canProceed, getStepErrors } from "./services/validators";
 import { formatWhatsAppMessage } from "./services/formatter";
 import { createWhatsAppLink } from "./services/whatsapp";
 import { getFlow } from "./services/getFlow";
@@ -242,6 +242,8 @@ section.scrollIntoView({
           step={step}
           goToStep={goToStep}
         />
+
+        {!canGoNext && <div role="status" className="mt-6 rounded-xl bg-amber-50 p-4 text-sm text-amber-900"><p className="font-semibold">Para continuar:</p><ul className="mt-2 list-disc pl-5">{getStepErrors(step, form).map(message => <li key={message}>{message}</li>)}</ul></div>}
 
         <Navigation
           canGoBack={!isFirstStep}

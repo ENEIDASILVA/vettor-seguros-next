@@ -6,7 +6,7 @@ export const insuranceTypes: InsuranceType[] = [
   "Seguro de Vida",
   "Seguro Empresarial",
   "Seguro Saúde",
-  "Seguro Rural",
+  "Seguro de Equipamentos",
   "Seguro Viagem",
 ];
 

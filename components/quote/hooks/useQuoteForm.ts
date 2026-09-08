@@ -92,6 +92,39 @@ const initialForm: QuoteFormData = {
   healthScope: "",
   healthCopay: "",
 
+  equipmentFinancing: "",
+  equipmentQuantity: "1",
+  equipmentBrand: "",
+  equipmentModel: "",
+  equipmentChassis: "",
+  equipmentResaleDate: "",
+  equipmentHasInvoice: "",
+  equipmentInvoiceNumber: "",
+  equipmentInvoiceIssuer: "",
+  equipmentBasicLimit: "",
+  equipmentTheftLimit: "",
+  equipmentElectricalLimit: "",
+  equipmentLiabilityLimit: "",
+  equipmentRentalLimit: "",
+  equipmentPlated: "",
+  equipmentPlate: "",
+  equipmentMounted: "",
+  equipmentLegalSituation: "",
+  equipmentTerritory: "",
+  equipmentLocation: "",
+  equipmentThirdParty: "",
+  equipmentInsuranceType: "Seguro Novo",
+  equipmentSegment: "",
+  equipmentPerson: "Física",
+  equipmentDocument: "",
+  equipmentProponent: "",
+  equipmentDescription: "",
+  equipmentBrandModel: "",
+  equipmentYear: "",
+  equipmentSerial: "",
+  equipmentValue: "",
+  equipmentCep: "",
+  equipmentUse: "",
   ruralPropertyName: "",
   ruralCep: "",
   ruralActivity: "",
@@ -123,6 +156,10 @@ export function useQuoteForm() {
     setForm((previous) => ({
       ...previous,
       insuranceType: value,
+      ...(value === "Seguro de Equipamentos" && previous.equipmentPerson === "Física" ? {
+        equipmentProponent: previous.equipmentProponent || previous.name,
+        equipmentDocument: previous.equipmentDocument || previous.cpf.replace(/\D/g, ""),
+      } : {}),
     }));
   }
 
@@ -133,6 +170,12 @@ export function useQuoteForm() {
     setForm((previous) => ({
       ...previous,
       [field]: value,
+      ...(previous.insuranceType === "Seguro de Equipamentos" && previous.equipmentPerson === "Física" ? {
+        ...(field === "name" && previous.equipmentProponent === previous.name
+          ? { equipmentProponent: value } : {}),
+        ...(field === "cpf" && previous.equipmentDocument.replace(/\D/g, "") === previous.cpf.replace(/\D/g, "")
+          ? { equipmentDocument: value.replace(/\D/g, "") } : {}),
+      } : {}),
     }));
   }
 

@@ -6,7 +6,7 @@ import {
   HeartPulse,
   Building2,
   Stethoscope,
-  Tractor,
+  Wrench,
   Plane,
 } from "lucide-react";
 
@@ -46,9 +46,9 @@ const services = [
     onlineQuote: true,
   },
   {
-    title: "Seguro Rural",
-    icon: Tractor,
-    text: "Proteção para atividades rurais, equipamentos e produção.",
+    title: "Seguro de Equipamentos",
+    icon: Wrench,
+    text: "Proteção para máquinas e equipamentos utilizados no seu trabalho.",
     onlineQuote: true,
   },
   {
@@ -121,7 +121,7 @@ function startOnlineQuote(
         <SectionTitle
           badge="Nossos Seguros"
           title="Escolha a proteção que você precisa"
-          subtitle="Faça sua cotação online para Auto, Residencial, Vida, Empresarial, Saúde ou Rural."
+          subtitle="Faça sua cotação online para Auto, Residencial, Vida, Empresarial, Saúde, Equipamentos ou Viagem."
         />
 
         <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-3">

@@ -1,3 +1,4 @@
+import { equipmentFields } from "@/components/quote/equipment/fields";
 import type {
   ReactNode,
 } from "react";
@@ -775,6 +776,12 @@ export default function CotacaoView({
           <Campo titulo="Operadora Atual" valor={valorOuTraco(lerTexto(dados, "healthCurrentOperator"))} />
           <Campo titulo="Acomodação" valor={valorOuTraco(lerTexto(dados, "healthAccommodation"))} />
           <Campo titulo="Coparticipação" valor={valorOuTraco(lerTexto(dados, "healthCopay"))} />
+        </Grade></Secao>
+      )}
+
+      {seguroNormalizado.includes("equipamento") && (
+        <Secao titulo="Dados do Seguro de Equipamentos"><Grade>
+          {equipmentFields.map(([key, label]) => <Campo key={key} titulo={label} valor={valorOuTraco(lerTexto(dados, key))} />)}
         </Grade></Secao>
       )}
 

@@ -4,7 +4,7 @@ export type InsuranceType =
   | "Seguro de Vida"
   | "Seguro Empresarial"
   | "Seguro Saúde"
-  | "Seguro Rural"
+  | "Seguro de Equipamentos"
   | "Seguro Viagem";
 
 export interface Beneficiary {
@@ -114,7 +114,41 @@ export interface QuoteFormData {
   healthScope: string;
   healthCopay: string;
 
-  // Seguro Rural
+  equipmentFinancing: string;
+  equipmentQuantity: string;
+  equipmentBrand: string;
+  equipmentModel: string;
+  equipmentChassis: string;
+  equipmentResaleDate: string;
+  equipmentHasInvoice: string;
+  equipmentInvoiceNumber: string;
+  equipmentInvoiceIssuer: string;
+  equipmentBasicLimit: string;
+  equipmentTheftLimit: string;
+  equipmentElectricalLimit: string;
+  equipmentLiabilityLimit: string;
+  equipmentRentalLimit: string;
+  equipmentPlated: string;
+  equipmentPlate: string;
+  equipmentMounted: string;
+  equipmentLegalSituation: string;
+  equipmentTerritory: string;
+  equipmentLocation: string;
+  equipmentThirdParty: string;
+  equipmentInsuranceType: string;
+  equipmentSegment: string;
+  equipmentPerson: string;
+  equipmentDocument: string;
+  equipmentProponent: string;
+  equipmentDescription: string;
+  equipmentBrandModel: string;
+  equipmentYear: string;
+  equipmentSerial: string;
+  equipmentValue: string;
+  equipmentCep: string;
+  equipmentUse: string;
+
+  // Seguro rural (histórico)
   ruralPropertyName: string;
   ruralCep: string;
   ruralActivity: string;

@@ -28,7 +28,7 @@ export default function Navigation({
       <Button
         variant="primary"
         onClick={onNext}
-        className={!canGoNext ? "opacity-50 pointer-events-none" : ""}
+        disabled={!canGoNext}
       >
         {nextLabel}
       </Button>

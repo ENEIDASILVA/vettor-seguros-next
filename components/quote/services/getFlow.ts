@@ -5,7 +5,7 @@ import { residentialFlow } from "../flows/residentialFlow";
 import { lifeFlow } from "../flows/lifeFlow";
 import { businessFlow } from "../flows/businessFlow";
 import { healthFlow } from "../flows/healthFlow";
-import { ruralFlow } from "../flows/ruralFlow";
+import { equipmentFlow } from "../flows/equipmentFlow";
 import { travelFlow } from "../flows/travelFlow";
 
 export function getFlow(
@@ -27,8 +27,8 @@ export function getFlow(
     case "Seguro Saúde":
       return healthFlow;
 
-    case "Seguro Rural":
-      return ruralFlow;
+    case "Seguro de Equipamentos":
+      return equipmentFlow;
 
     case "Seguro Viagem":
       return travelFlow;

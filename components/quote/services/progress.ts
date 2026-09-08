@@ -18,6 +18,7 @@ const stepLabels: Record<string, string> = {
   productCoverage: "Coberturas desejadas",
 
   coverage: "Coberturas",
+  equipmentQuestionnaire: "Questionário do equipamento",
   review: "Revisão",
 };
 

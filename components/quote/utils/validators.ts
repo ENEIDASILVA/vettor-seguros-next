@@ -56,7 +56,7 @@ export function isValidCPF(cpf: string) {
   return digit === Number(numbers[10]);
 }
 
-function parseBrazilianDate(date: string) {
+export function parseBrazilianDate(date: string) {
   if (!/^\d{2}\/\d{2}\/\d{4}$/.test(date)) {
     return null;
   }

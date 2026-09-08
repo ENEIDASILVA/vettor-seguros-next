@@ -215,7 +215,7 @@ export default function StepVehicle() {
 
       <div>
   <label className="mb-2 block font-medium text-slate-700">
-    Placa
+    Placa (opcional)
   </label>
 
   <input
@@ -234,7 +234,7 @@ export default function StepVehicle() {
         valor,
       );
     }}
-    placeholder="ABC1D23"
+    placeholder="ABC1D23 — deixe vazio se não possuir"
     className="
       w-full
       rounded-xl

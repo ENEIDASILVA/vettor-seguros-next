@@ -1,3 +1,5 @@
+import EquipmentCoverage from "./equipment/EquipmentCoverage";
+import EquipmentQuestionnaire from "./equipment/EquipmentQuestionnaire";
 import StepInsurance from "./common/StepInsurance";
 import StepPersonal from "./common/StepPersonal";
 
@@ -134,12 +136,17 @@ export default function FlowRenderer({
   if (
     form.insuranceType === "Seguro Empresarial" ||
     form.insuranceType === "Seguro Saúde" ||
-    form.insuranceType === "Seguro Rural" ||
+    form.insuranceType === "Seguro de Equipamentos" ||
     form.insuranceType === "Seguro Viagem"
   ) {
     if (step === 2) return <StepPersonal />;
     if (step === 3) return <StepProductDetails />;
     if (step === 4) return <StepProductNeeds />;
+    if (form.insuranceType === "Seguro de Equipamentos") {
+      if (step === 5) return <EquipmentCoverage />;
+      if (step === 6) return <EquipmentQuestionnaire />;
+      if (step === 7) return <StepProductReview onEdit={goToStep} />;
+    }
     if (step === 5) return <StepProductCoverage />;
     if (step === 6) return <StepProductReview onEdit={goToStep} />;
   }

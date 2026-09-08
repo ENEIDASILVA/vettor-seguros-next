@@ -1,15 +1,11 @@
 "use client";
+import EquipmentDetails from "../equipment/EquipmentDetails";
 
 import Input from "../../ui/Input";
 import Select from "../../ui/Select";
 import StepLayout from "../common/StepLayout";
 import { useQuote } from "../context/QuoteContext";
 
-function money(value: string) {
-  const digits = value.replace(/\D/g, "");
-  if (!digits) return "";
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 }).format(Number(digits) / 100);
-}
 
 export default function StepProductDetails() {
   const { form, updateField } = useQuote();
@@ -51,13 +47,5 @@ export default function StepProductDetails() {
     );
   }
 
-  return (
-    <StepLayout title="Dados da propriedade rural" subtitle="Informe as características principais da área que deseja proteger.">
-      <Input label="Nome da propriedade" value={form.ruralPropertyName} placeholder="Ex.: Fazenda Boa Esperança" required onChange={(value) => updateField("ruralPropertyName", value)} />
-      <Input label="CEP da propriedade" value={form.ruralCep} placeholder="00000-000" mask="cep" required onChange={(value) => updateField("ruralCep", value)} />
-      <Select label="Atividade principal" value={form.ruralActivity} required onChange={(value) => updateField("ruralActivity", value)} options={[{ label: "Agricultura", value: "Agricultura" }, { label: "Pecuária", value: "Pecuária" }, { label: "Agricultura e pecuária", value: "Agricultura e pecuária" }, { label: "Florestas", value: "Florestas" }, { label: "Outra atividade rural", value: "Outra atividade rural" }]} />
-      <Input label="Área aproximada (hectares)" value={form.ruralArea} placeholder="Ex.: 120" required onChange={(value) => updateField("ruralArea", value.replace(/[^0-9,.]/g, ""))} />
-      <Input label="Faturamento anual aproximado" value={form.ruralAnnualRevenue} placeholder="Ex.: R$ 500.000,00" required onChange={(value) => updateField("ruralAnnualRevenue", money(value))} />
-    </StepLayout>
-  );
+  return <EquipmentDetails />;
 }

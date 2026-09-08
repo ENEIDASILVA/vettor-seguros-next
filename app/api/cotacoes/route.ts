@@ -67,6 +67,10 @@ function getInsuranceAliases(
     return ["Seguro Saúde", "Saúde"];
   }
 
+  if (insurance.includes("equipamento")) {
+    return ["Seguro de Equipamentos", "Equipamentos"];
+  }
+
   if (insurance.includes("rural")) {
     return ["Seguro Rural", "Rural"];
   }

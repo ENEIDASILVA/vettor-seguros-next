@@ -1,4 +1,5 @@
 "use client";
+import EquipmentNeeds from "../equipment/EquipmentNeeds";
 
 import Input from "../../ui/Input";
 import RadioGroup from "../../ui/RadioGroup";
@@ -48,11 +49,5 @@ export default function StepProductNeeds() {
     );
   }
 
-  return (
-    <StepLayout title="Estrutura e produção" subtitle="Informe os bens e atividades relevantes para a cotação rural.">
-      <Input label="Valor aproximado de máquinas e implementos" value={form.ruralMachineryValue} placeholder="Ex.: R$ 300.000,00" required onChange={(value) => updateField("ruralMachineryValue", money(value))} />
-      <RadioGroup label="Possui criação de animais?" value={form.ruralHasLivestock} onChange={(value) => updateField("ruralHasLivestock", value)} options={yesNo} />
-      <RadioGroup label="Possui silos, armazéns ou depósitos?" value={form.ruralHasStorage} onChange={(value) => updateField("ruralHasStorage", value)} options={yesNo} />
-    </StepLayout>
-  );
+  return <EquipmentNeeds />;
 }

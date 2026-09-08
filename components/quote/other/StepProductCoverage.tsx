@@ -23,17 +23,17 @@ const travelCoverageTips: Record<string, string> = {
 const coverageOptions = {
   "Seguro Empresarial": ["Incêndio, raio e explosão", "Danos elétricos", "Roubo ou furto qualificado", "Vendaval e granizo", "Lucros cessantes", "Responsabilidade civil", "Quebra de máquinas", "Equipamentos eletrônicos", "Assistência empresarial 24 horas"],
   "Seguro Saúde": ["Consultas e exames", "Internações hospitalares", "Urgência e emergência", "Maternidade e obstetrícia", "Terapias", "Odontologia", "Reembolso", "Telemedicina"],
-  "Seguro Rural": ["Benfeitorias e instalações", "Máquinas e implementos", "Produção agrícola", "Rebanho", "Incêndio e raio", "Vendaval e granizo", "Responsabilidade civil rural", "Roubo ou furto qualificado", "Assistência rural"],
+  "Seguro de Equipamentos": ["Danos acidentais", "Incêndio, raio e explosão", "Danos elétricos", "Roubo ou furto qualificado", "Danos durante transporte", "Quero orientação sobre as coberturas"],
   "Seguro Viagem": ["Despesas médicas e hospitalares", "Atendimento odontológico de emergência", "Traslado médico", "Repatriação sanitária", "Extravio de bagagem", "Atraso ou cancelamento de voo", "Cancelamento ou interrupção da viagem", "Morte acidental", "Invalidez permanente por acidente", "Assistência jurídica", "Assistência 24 horas"],
 } as const;
 
 export default function StepProductCoverage() {
   const { form, toggleCoverage } = useQuote();
   const [openTip, setOpenTip] = useState<string | null>(null);
-  const options = form.insuranceType === "Seguro Empresarial" || form.insuranceType === "Seguro Saúde" || form.insuranceType === "Seguro Rural" || form.insuranceType === "Seguro Viagem" ? coverageOptions[form.insuranceType] : [];
+  const options = form.insuranceType === "Seguro Empresarial" || form.insuranceType === "Seguro Saúde" || form.insuranceType === "Seguro de Equipamentos" || form.insuranceType === "Seguro Viagem" ? coverageOptions[form.insuranceType] : [];
 
   return (
-    <StepLayout title="Coberturas desejadas" subtitle="Selecione uma ou mais opções importantes para a sua cotação.">
+    <StepLayout title="Coberturas desejadas" subtitle="Selecione as opções de interesse. A disponibilidade e as condições serão confirmadas na cotação.">
       <div className="grid gap-4 md:grid-cols-2">
         {options.map((coverage) => {
           const selected = form.coverages.includes(coverage);
