@@ -11,6 +11,7 @@ const partners = [
   "Mapfre",
   "Porto Seguro",
   "Suhai",
+  "SulAmérica Seguros",
   "Tokio Marine",
   "Yelum"  
 ];
